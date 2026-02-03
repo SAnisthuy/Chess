@@ -6,6 +6,7 @@ class Chess:
         self.grid = []
         self.select = None
         self.prev = None
+        self.turn = True
 
     def update_button(self, row, col, **kwargs):
         widgets = self.main.grid_slaves(row=row, column=col) 
@@ -24,11 +25,16 @@ class Chess:
             self.prev =None
 
         elif self.select == None and self.grid[y][x] != 0: # Selects a non-empty square with nothing previously selected
-
-            self.select = self.grid[y][x]
-            self.update_button(y, x, bg="light green")
-            self.prev = (y, x, col)
-
+            if self.turn and self.grid[y][x] < 10 or self.turn != True and self.grid[y][x] > 10:
+                self.select = self.grid[y][x]
+                self.update_button(y, x, bg="light green")
+                self.prev = (y, x, col)
+                if self.turn:
+                    self.turn = False
+                else:
+                    self.turn = True
+            else:
+                pass
         else: # Neither
             print("Invalid interaction")
     
