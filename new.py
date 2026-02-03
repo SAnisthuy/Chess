@@ -7,6 +7,7 @@ class Chess:
         self.select = None
         self.prev = None
         self.turn = True
+        self.track = set()
 
     def update_button(self, row, col, **kwargs):
         widgets = self.main.grid_slaves(row=row, column=col) 
@@ -17,18 +18,22 @@ class Chess:
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
         if self.select != None: # Selects an empty square with something previously selected
-
-            self.grid[y][x] = self.select
-            self.select = None
-            self.update_button(y, x, image=self.pieces[self.grid[y][x]])
-            self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2])
-            self.prev =None
+            if (y, x) in self.track:
+                self.grid[y][x] = self.select
+                self.select = None
+                self.interact(y, x, reverse=True)
+                self.update_button(y, x, image=self.pieces[self.grid[y][x]])
+                self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2])
+                self.prev =None
+            else:
+                print("Invalid move")
 
         elif self.select == None and self.grid[y][x] != 0: # Selects a non-empty square with nothing previously selected
             if self.turn and self.grid[y][x] < 10 or self.turn != True and self.grid[y][x] > 10:
                 self.select = self.grid[y][x]
                 self.update_button(y, x, bg="light green")
                 self.prev = (y, x, col)
+                self.interact(y, x)
                 if self.turn:
                     self.turn = False
                 else:
@@ -48,13 +53,15 @@ class Chess:
         self.main.darkPawn   = PhotoImage(file=r"DarkPawn.png").subsample(6, 6)
 
         self.main.whiteRook   = PhotoImage(file=r"LightRook.png").subsample(6, 6)
-        self.main.whiteBishop = PhotoImage(file=r"LightBishop.png").subsample(6, 6)
+        self.main.whiteBishop = PhotoImage(file=r"LightBishop.png").subsample(4, 4)
         self.main.whiteKnight = PhotoImage(file=r"LightKnight.png").subsample(6, 6)
         self.main.whiteQueen  = PhotoImage(file=r"LightQueen.png").subsample(4, 4)
         self.main.whiteKing   = PhotoImage(file=r"LightKing.png").subsample(6, 6)
         self.main.whitePawn   = PhotoImage(file=r"LightPawn.png").subsample(6, 6)
 
         self.main.blank = PhotoImage(file=r"Blank.png")
+        self.main.selected = PhotoImage(file=r"selected.png").subsample(6, 6)
+
 
         # map
         self.pieces = {0: self.main.blank, 
@@ -97,6 +104,16 @@ class Chess:
         for i in range(8):
             self.grid[1][i] = 11
             self.grid[6][i] = 1
+
+    def interact(self, y, x, reverse=False):
+        if reverse == False:
+            if self.grid[y][x] == 1:
+                self.update_button(y-1, x, image=self.main.selected)
+                self.track.add((y-1, x))
+        else:
+            for y, x in self.track:
+                self.update_button(y, x, image=self.main.blank)
+            self.track = set()
 
     def run(self):
     
