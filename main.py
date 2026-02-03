@@ -1,7 +1,7 @@
 from tkinter import *
 
 clicked = []
-
+# random change
 def on_click(y, x):
     global clicked, buttons, main
 
