@@ -108,8 +108,24 @@ class Chess:
     def interact(self, y, x, reverse=False):
         if reverse == False:
             if self.grid[y][x] == 1:
-                self.update_button(y-1, x, image=self.main.selected)
-                self.track.add((y-1, x))
+                if self.grid[y-1][x] == 0:
+                    self.update_button(y-1, x, image=self.main.selected)
+                    self.track.add((y-1, x))
+            if self.grid[y][x] == 11:
+                if self.grid[y+1][x] == 0: # check if square ahead is empty
+                    self.update_button(y+1, x, image=self.main.selected)
+                    self.track.add((y+1, x))
+                elif self.grid[y+1][x+1] != 0 or self.grid[y+1][x-1] != 0: # If square is empty and side square are not empty
+                    if self.grid[y+1][x+1] == 0: # if this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y+1, x+1))  # else add it to track
+
+                    if self.grid[y+1][x-1] == 0: # If this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y+1, x-1)) # else add it to track
+
         else:
             for y, x in self.track:
                 self.update_button(y, x, image=self.main.blank)
