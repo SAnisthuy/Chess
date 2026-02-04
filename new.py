@@ -18,6 +18,7 @@ class Chess:
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
         if self.select != None: # Selects an empty square with something previously selected
+            print(self.track)
             if (y, x) in self.track:
                 self.grid[y][x] = self.select
                 self.select = None
@@ -44,6 +45,22 @@ class Chess:
             print("Invalid interaction")
     
     def set_up(self):
+        
+        self.wPAWN = 1
+        self.wBISHOP = 2
+        self.wKNIGHT = 3
+        self.wROOK = 4
+        self.wQUEEN = 5
+        self.wKING = 6
+
+        self.bPAWN = 11
+        self.bBISHOP = 12
+        self.bKNIGHT = 13
+        self.bROOK = 14
+        self.bQUEEN = 15
+        self.bKING = 16
+        
+
         # Load pieces
         self.main.darkRook   = PhotoImage(file=r"DarkRook.png").subsample(6, 6)
         self.main.darkKnight = PhotoImage(file=r"DarkKnight.png").subsample(6, 6)
@@ -107,11 +124,11 @@ class Chess:
 
     def interact(self, y, x, reverse=False):
         if reverse == False:
-            if self.grid[y][x] == 1: # White pawn
+            if self.grid[y][x] == self.wPAWN:
                 if self.grid[y-1][x] == 0: # If the square ahead is empty
-                    self.update_button(y-1, x, image=self.main.selected)
+                    self.update_button(y-1, x, image=self.main.selected) 
                     self.track.add((y-1, x))
-                elif self.grid[y-1][x+1] != 0 or self.grid[y-1][x-1] != 0: # If square is empty and side square are not empty
+                if self.grid[y-1][x+1] != 0 or self.grid[y-1][x-1] != 0: # If square is empty and side square are not empty
                     if self.grid[y-1][x+1] == 0: # if this square is empty then pass
                         pass
                     else:
@@ -122,11 +139,11 @@ class Chess:
                     else:
                         self.track.add((y-1, x-1)) # else add it to track
 
-            if self.grid[y][x] == 11: # Black pawn
+            if self.grid[y][x] == self.bPAWN: # Black pawn
                 if self.grid[y+1][x] == 0: # check if square ahead is empty
                     self.update_button(y+1, x, image=self.main.selected)
                     self.track.add((y+1, x))
-                elif self.grid[y+1][x+1] != 0 or self.grid[y+1][x-1] != 0: # If square is empty and side square are not empty
+                if self.grid[y+1][x+1] != 0 or self.grid[y+1][x-1] != 0: # If square is empty and side square are not empty
                     if self.grid[y+1][x+1] == 0: # if this square is empty then pass
                         pass
                     else:
@@ -139,7 +156,8 @@ class Chess:
 
         else:
             for y, x in self.track:
-                self.update_button(y, x, image=self.main.blank)
+                if self.grid[y][x] == 0:
+                    self.update_button(y, x, image=self.main.blank)
             self.track = set()
 
     def run(self):
