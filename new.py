@@ -18,13 +18,13 @@ class Chess:
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
         if self.select != None: # Selects an empty square with something previously selected
-            print(self.track)
             if (y, x) in self.track:
                 self.grid[y][x] = self.select
                 self.select = None
                 self.interact(y, x, reverse=True)
                 self.update_button(y, x, image=self.pieces[self.grid[y][x]])
                 self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2])
+                self.grid[self.prev[0]][self.prev[1]] = 0
                 self.prev =None
             else:
                 print("Invalid move")
@@ -39,13 +39,274 @@ class Chess:
                     self.turn = False
                 else:
                     self.turn = True
-                for i in self.grid:
-                    print(i)
             else:
                 pass
         else: # Neither
             print("Invalid interaction")
     
+    def pawn(self, p, y, x):
+        if p == 1:
+            if self.grid[y-1][x] == 0: # If the square ahead is empty
+                self.update_button(y-1, x, image=self.main.selected) 
+                self.track.add((y-1, x))
+            try:
+                if self.grid[y-1][x+1] != 0 or self.grid[y-1][x-1] != 0: # If square is empty and side square are not empty
+                    if self.grid[y-1][x+1] == 0: # if this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y-1, x+1))  # else add it to track
+
+                    if self.grid[y-1][x-1] == 0: # If this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y-1, x-1)) # else add it to track
+            except IndexError:
+                if x == 7:
+                    if self.grid[y+1][x-1] == 0: # If this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y+1, x-1)) # else add it to track
+                elif x == 0:
+                    if self.grid[y+1][x+1] == 0: # if this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y+1, x+1))  # else add it to track
+        elif p == 11:
+            if self.grid[y+1][x] == 0: # check if square ahead is empty
+                    self.update_button(y+1, x, image=self.main.selected)
+                    self.track.add((y+1, x))
+            try:
+                if self.grid[y+1][x+1] != 0 or self.grid[y+1][x-1] != 0: # If square is empty and side square are not empty
+                    if self.grid[y+1][x+1] == 0: # if this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y+1, x+1))  # else add it to track
+
+                    if self.grid[y+1][x-1] == 0: # If this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y+1, x-1)) # else add it to track
+            except IndexError:
+                if x == 7:
+                    if self.grid[y+1][x-1] == 0: # If this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y+1, x-1)) # else add it to track
+                elif x == 0:
+                    if self.grid[y+1][x+1] == 0: # if this square is empty then pass
+                        pass
+                    else:
+                        self.track.add((y+1, x+1))  # else add it to track
+
+    def knight(self, p, y, x):
+        pass
+
+    def bishop(self, p, y, x):
+        if p == self.wBISHOP:
+            # down and right
+            if abs(x-8) > abs(y-8):
+                l = abs(y-8)
+            else:
+                l = abs(x-8)
+            for i in range(1, l):
+                curr = self.grid[y+i][x+i]
+                if curr != 0:
+                    if curr > 10:
+                        self.track.add((y+i, x+i))
+                    break
+                else:
+                    self.track.add((y+i, x+i))
+                    self.update_button(y+i, x+i, image=self.main.selected)
+        
+            # down and left
+            if abs(x-(-1)) > abs(y-8):
+                l = abs(8-y)
+            else:
+                l = abs(x-(-1))
+            for i in range(1, l):
+                curr = self.grid[y+i][x-i]
+                if curr != 0:
+                    if curr > 10:
+                        self.track.add((y+i, x-i))
+                    break
+                else:
+                    self.track.add((y+i, x-i))
+                    self.update_button(y+i, x-i, image=self.main.selected)
+
+            # up and right
+            if abs(x-8) > abs(y-(-1)):
+                l = abs((-1)-y)
+            else:
+                l = abs(x-8)
+            for i in range(1, l):
+                curr = self.grid[y-i][x+i]
+                if curr != 0:
+                    if curr > 10:
+                        self.track.add((y-i, x+i))
+                    break
+                else:
+                    self.track.add((y-i, x+i))
+                    self.update_button(y-i, x+i, image=self.main.selected)
+
+            # up and left
+            if abs(x-(-1)) > abs(y-(-1)):
+                l = abs((-1)-y)
+            else:
+                l = abs(x-(-1))
+            for i in range(1, l):
+                curr = self.grid[y-i][x-i]
+                if curr != 0:
+                    if curr > 10:
+                        self.track.add((y-i, x-i))
+                    break
+                else:
+                    self.track.add((y-i, x-i))
+                    self.update_button(y-i, x-i, image=self.main.selected)
+        else:
+            # down and right
+            if abs(x-8) > abs(y-8):
+                l = abs(y-8)
+            else:
+                l = abs(x-8)
+            for i in range(1, l):
+                curr = self.grid[y+i][x+i]
+                if curr != 0:
+                    if curr < 10:
+                        self.track.add((y+i, x+i))
+                    break
+                else:
+                    self.track.add((y+i, x+i))
+                    self.update_button(y+i, x+i, image=self.main.selected)
+        
+            # down and left
+            if abs(x-(-1)) > abs(y-8):
+                l = abs(8-y)
+            else:
+                l = abs(x-(-1))
+            for i in range(1, l):
+                curr = self.grid[y+i][x-i]
+                if curr != 0:
+                    if curr < 10:
+                        self.track.add((y+i, x-i))
+                    break
+                else:
+                    self.track.add((y+i, x-i))
+                    self.update_button(y+i, x-i, image=self.main.selected)
+
+            # up and right
+            if abs(x-8) > abs(y-(-1)):
+                l = abs((-1)-y)
+            else:
+                l = abs(x-8)
+            for i in range(1, l):
+                curr = self.grid[y-i][x+i]
+                if curr != 0:
+                    if curr < 10:
+                        self.track.add((y-i, x+i))
+                    break
+                else:
+                    self.track.add((y-i, x+i))
+                    self.update_button(y-i, x+i, image=self.main.selected)
+
+            # up and left
+            if abs(x-(-1)) > abs(y-(-1)):
+                l = abs((-1)-y)
+            else:
+                l = abs(x-(-1))
+            for i in range(1, l):
+                curr = self.grid[y-i][x-i]
+                if curr != 0:
+                    if curr < 10:
+                        self.track.add((y-i, x-i))
+                    break
+                else:
+                    self.track.add((y-i, x-i))
+                    self.update_button(y-i, x-i, image=self.main.selected)
+            
+    def rook(self, p, y, x):
+        if p == self.wROOK:
+            # vertical up
+            for i in range(y-1, -1, -1):
+                if self.grid[i][x] != 0:
+                    if self.grid[i][x] > 10:
+                        self.track.add((i, x))
+                    break
+                else:
+                    self.track.add((i, x))
+                    self.update_button(i, x, image=self.main.selected)
+            # vertical down
+            for i in range(y+1, 8):
+                if self.grid[i][x] != 0:
+                    if self.grid[i][x] > 10:
+                            self.track.add((i, x))
+                    break
+                else:
+                    self.track.add((i, x))
+                    self.update_button(i, x, image=self.main.selected)
+            
+            # horizontal right
+            for i in range(x+1, 8):
+                if self.grid[y][i] != 0:
+                    if self.grid[y][i] > 10:
+                            self.track.add((y, i))
+                    break
+                else:
+                    self.track.add((y, i))
+                    self.update_button(y, i, image=self.main.selected)
+            
+            # horizontal left
+            for i in range(x-1, -1, -1):
+                if self.grid[y][i] != 0:
+                    if self.grid[y][i] > 10:
+                            self.track.add((y, i))
+                    break
+                else:
+                    self.track.add((y, i))
+                    self.update_button(y, i, image=self.main.selected)
+
+        if p == self.bROOK:
+            # vertical up
+            for i in range(y-1, -1, -1):
+                if self.grid[i][x] != 0:
+                    if self.grid[i][x] < 10:
+                        self.track.add((i, x))
+                    break
+                else:
+                    self.track.add((i, x))
+                    self.update_button(i, x, image=self.main.selected)
+            # vertical down
+            for i in range(y+1, 8):
+                if self.grid[i][x] != 0:
+                    if self.grid[i][x] < 10:
+                            self.track.add((i, x))
+                    break
+                else:
+                    self.track.add((i, x))
+                    self.update_button(i, x, image=self.main.selected)
+            
+            # horizontal right
+            for i in range(x+1, 8):
+                if self.grid[y][i] != 0:
+                    if self.grid[y][i] < 10:
+                            self.track.add((y, i))
+                    break
+                else:
+                    self.track.add((y, i))
+                    self.update_button(y, i, image=self.main.selected)
+            
+            # horizontal left
+            for i in range(x-1, -1, -1):
+                if self.grid[y][i] != 0:
+                    if self.grid[y][i] < 10:
+                            self.track.add((y, i))
+                    break
+                else:
+                    self.track.add((y, i))
+                    self.update_button(y, i, image=self.main.selected)
+
+    def king(self, p, y, x):
+        pass
+
     def set_up(self):
         
         self.wPAWN = 1
@@ -127,69 +388,32 @@ class Chess:
     def interact(self, y, x, reverse=False):
         if reverse == False:
             if self.grid[y][x] == self.wPAWN:
-                if self.grid[y-1][x] == 0: # If the square ahead is empty
-                    self.update_button(y-1, x, image=self.main.selected) 
-                    self.track.add((y-1, x))
-                try:
-                    if self.grid[y-1][x+1] != 0 or self.grid[y-1][x-1] != 0: # If square is empty and side square are not empty
-                        if self.grid[y-1][x+1] == 0: # if this square is empty then pass
-                            pass
-                        else:
-                            self.track.add((y-1, x+1))  # else add it to track
+                self.pawn(1, y, x)
 
-                        if self.grid[y-1][x-1] == 0: # If this square is empty then pass
-                            pass
-                        else:
-                            self.track.add((y-1, x-1)) # else add it to track
-                except IndexError:
-                    if x == 7:
-                        if self.grid[y+1][x-1] == 0: # If this square is empty then pass
-                            pass
-                        else:
-                            self.track.add((y+1, x-1)) # else add it to track
-                    elif x == 0:
-                        if self.grid[y+1][x+1] == 0: # if this square is empty then pass
-                            pass
-                        else:
-                            self.track.add((y+1, x+1))  # else add it to track
+            elif self.grid[y][x] == self.bPAWN: # Black pawn
+                self.pawn(11, y, x)
+    
+            elif self.grid[y][x] == self.wROOK: # White rook
+                self.rook(self.wROOK, y, x)
+
+            elif self.grid[y][x] == self.bROOK: # Black rook
+                self.rook(self.bROOK, y, x)
+
+            elif self.grid[y][x] == self.wBISHOP: # Black bishop
+                self.bishop(self.wBISHOP, y, x)
+
+            elif self.grid[y][x] == self.bBISHOP: # Black rook
+                self.bishop(self.bBISHOP, y, x)
+
+            elif self.grid[y][x] == self.wQUEEN:
+                self.bishop(self.wBISHOP, y, x)
+                self.rook(self.wROOK, y, x)
+
+            elif self.grid[y][x] == self.bQUEEN:
+                self.bishop(self.bBISHOP, y, x)
+                self.rook(self.bROOK, y, x)
 
 
-            if self.grid[y][x] == self.bPAWN: # Black pawn
-                if self.grid[y+1][x] == 0: # check if square ahead is empty
-                    self.update_button(y+1, x, image=self.main.selected)
-                    self.track.add((y+1, x))
-                try:
-                    if self.grid[y+1][x+1] != 0 or self.grid[y+1][x-1] != 0: # If square is empty and side square are not empty
-                        if self.grid[y+1][x+1] == 0: # if this square is empty then pass
-                            pass
-                        else:
-                            self.track.add((y+1, x+1))  # else add it to track
-
-                        if self.grid[y+1][x-1] == 0: # If this square is empty then pass
-                            pass
-                        else:
-                            self.track.add((y+1, x-1)) # else add it to track
-                except IndexError:
-                    if x == 7:
-                        if self.grid[y+1][x-1] == 0: # If this square is empty then pass
-                            pass
-                        else:
-                            self.track.add((y+1, x-1)) # else add it to track
-                    elif x == 0:
-                        if self.grid[y+1][x+1] == 0: # if this square is empty then pass
-                            pass
-                        else:
-                            self.track.add((y+1, x+1))  # else add it to track
-
-            if self.grid[y][x] == self.wROOK: # White rook
-                #horizontal up
-                for i in range(y-1, 8):
-                    if self.grid[i][x] != 0:
-                        self.track.add((i, x))
-                        break
-                    else:
-                        self.track.add((i, x))
-                        self.update_button(i, x, image=self.main.select)
         else:
             for y, x in self.track:
                 if self.grid[y][x] == 0:
