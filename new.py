@@ -34,20 +34,58 @@ class Chess:
             self.turn = False
         else:
             self.turn = True
+            
+    def promotion(self, y, x, p):
+        self.promote = Toplevel(self.main)
+        self.promote.geometry('250x250')
+        self.promote.title("Promotion")
+
+        selected = IntVar()
+
+        b, k, r, q = 2, 3, 4, 5
+        if p > 10:
+            b, k, r, q = 12, 13, 14, 15
+
+        Queen = Radiobutton(self.promote, text='Queen', variable=selected, value=q)
+        Rook = Radiobutton(self.promote, text='Rook', variable=selected, value=r)
+        Knight = Radiobutton(self.promote, text='Knight', variable=selected, value=k)
+        Bishop = Radiobutton(self.promote, text='Bishop', variable=selected, value=b)
         
+        Queen.pack()
+        Rook.pack()
+        Knight.pack()
+        Bishop.pack()
+
+        submit = Button(self.promote, text="SUBMIT", width=10, height=2, command= lambda: self.promotion2(y, x, selected))
+        submit.pack()
+
+    def promotion2(self, y, x, val):
+        val = val.get()
+        self.grid[y][x] = val 
+        self.update_button(y, x, image=self.pieces[val])
+        self.promote.destroy()
+
+
 
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
 
         if self.select != None: # Selects an empty square with something previously selected
             if (y, x) in self.track:
-                self.grid[y][x] = self.select
-                self.select = None
-                self.interact(y, x, reverse=True)
-                self.update_button(y, x, image=self.pieces[self.grid[y][x]])
-                self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2])
+                if (self.select == self.wPAWN and y == 0) or (self.select == self.bPAWN and y == 7):
+                    self.promotion(y, x, self.select)
+                else:
+                    # update new square
+                    self.grid[y][x] = self.select 
+                    self.update_button(y, x, image=self.pieces[self.grid[y][x]]) 
+                # update previous square
+                self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2]) 
                 self.grid[self.prev[0]][self.prev[1]] = 0
-                self.prev =None
+                # clear move highlights
+                self.interact(y, x, reverse=True)
+                # clear variables
+                self.prev, self.select = None, None
+
             else:
                 self.cancel_move(y, x)
 
