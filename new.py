@@ -51,13 +51,13 @@ class Chess:
                 self.track.add((y-1, x))
             try:
                 if self.grid[y-1][x+1] != 0 or self.grid[y-1][x-1] != 0: # If square is empty and side square are not empty
-                    if self.grid[y-1][x+1] == 0: # if this square is empty then pass
+                    if self.grid[y-1][x+1] == 0 or self.grid[y-1][x+1] < 10: # if this square is empty then pass
                         pass
                     else:
                         self.track.add((y-1, x+1))  # else add it to track
                         self.update_button(y-1, x+1, bg='red') 
 
-                    if self.grid[y-1][x-1] == 0: # If this square is empty then pass
+                    if self.grid[y-1][x-1] == 0 or self.grid[y-1][x-1] < 10: # If this square is empty then pass
                         pass
                     else:
                         self.track.add((y-1, x-1)) # else add it to track
@@ -65,45 +65,49 @@ class Chess:
 
             except IndexError:
                 if x == 7:
-                    if self.grid[y+1][x-1] == 0: # If this square is empty then pass
+                    if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] < 10: # If this square is empty then pass
                         pass
                     else:
                         self.track.add((y+1, x-1)) # else add it to track
                         self.update_button(y+1, x-1, bg='red') 
 
                 elif x == 0:
-                    if self.grid[y+1][x+1] == 0: # if this square is empty then pass
+                    if self.grid[y+1][x+1] == 0 or self.grid[y+1][x+1] < 10: # if this square is empty then pass
                         pass
                     else:
                         self.track.add((y+1, x+1))  # else add it to track
                         self.update_button(y+1, x+1, bg='red') 
 
         elif p == 11:
-            if self.grid[y+1][x] == 0: # check if square ahead is empty
+            if self.grid[y+1][x] == 0 or self.grid[y-1][x+1] > 10: # check if square ahead is empty
                     self.update_button(y+1, x, bg='red')
                     self.track.add((y+1, x))
             try:
                 if self.grid[y+1][x+1] != 0 or self.grid[y+1][x-1] != 0: # If square is empty and side square are not empty
-                    if self.grid[y+1][x+1] == 0: # if this square is empty then pass
+                    if self.grid[y+1][x+1] == 0 or self.grid[y-1][x+1] > 10: # if this square is empty then pass
                         pass
                     else:
                         self.track.add((y+1, x+1))  # else add it to track
+                        self.update_button(y+1, x+1, bg='red')
 
-                    if self.grid[y+1][x-1] == 0: # If this square is empty then pass
+                    if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] > 10: # If this square is empty then pass
                         pass
                     else:
                         self.track.add((y+1, x-1)) # else add it to track
+                        self.update_button(y+1, x-1, bg='red')
             except IndexError:
                 if x == 7:
-                    if self.grid[y+1][x-1] == 0: # If this square is empty then pass
+                    if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] > 10: # If this square is empty then pass
                         pass
                     else:
                         self.track.add((y+1, x-1)) # else add it to track
+                        self.update_button(y+1, x-1, bg='red')
                 elif x == 0:
-                    if self.grid[y+1][x+1] == 0: # if this square is empty then pass
+                    if self.grid[y+1][x+1] == 0 or self.grid[y+1][x+1] > 10: # if this square is empty then pass
                         pass
                     else:
                         self.track.add((y+1, x+1))  # else add it to track
+                        self.update_button(y+1, x+1, bg='red')
 
     def knight(self, p, y, x):
         pass
