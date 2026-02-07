@@ -37,35 +37,41 @@ class Chess:
             
     def promotion(self, y, x, p):
         self.promote = Toplevel(self.main)
-        self.promote.geometry('250x250')
-        self.promote.title("Promotion")
-
-        selected = IntVar()
+        self.promote.geometry('125x275+1250+276')
 
         b, k, r, q = 2, 3, 4, 5
         if p > 10:
             b, k, r, q = 12, 13, 14, 15
-
-        Queen = Radiobutton(self.promote, text='Queen', variable=selected, value=q)
-        Rook = Radiobutton(self.promote, text='Rook', variable=selected, value=r)
-        Knight = Radiobutton(self.promote, text='Knight', variable=selected, value=k)
-        Bishop = Radiobutton(self.promote, text='Bishop', variable=selected, value=b)
+            self.promote.geometry('125x275+1250+560')
         
+        self.promote.title("Promotion")
+        self.promote.overrideredirect(True)
+
+        Queen = Button(self.promote, image=self.pieces[q], command=lambda: self.promotion2(y, x, q))
+        Rook = Button(self.promote,image=self.pieces[r], command=lambda: self.promotion2(y, x, r))
+        Knight = Button(self.promote,image=self.pieces[k], command=lambda: self.promotion2(y, x, k))
+        Bishop = Button(self.promote,image=self.pieces[b], command=lambda: self.promotion2(y, x, b))
+
         Queen.pack()
         Rook.pack()
-        Knight.pack()
         Bishop.pack()
-
-        submit = Button(self.promote, text="SUBMIT", width=10, height=2, command= lambda: self.promotion2(y, x, selected))
-        submit.pack()
+        Knight.pack()
 
     def promotion2(self, y, x, val):
-        val = val.get()
         self.grid[y][x] = val 
         self.update_button(y, x, image=self.pieces[val])
         self.promote.destroy()
 
+    def center_window(self, width, height):
+        # Get screen width and height
+        screen_width = self.main.winfo_screenwidth()
+        screen_height = self.main.winfo_screenheight()
 
+        # Calculate x and y coordinates for the center of the screen
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
+        # Set the geometry
+        self.main.geometry(f'{width}x{height}+{x}+{y}')
 
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
@@ -130,21 +136,30 @@ class Chess:
 
     def knight(self, p, y, x):
         # up
-        if y >= 2 and (x != 0 and x != 7):
-            self.test_movement(y-2, x+1, p)
-            self.test_movement(y-2, x-1, p)
+        if y >= 2:
+            if x != 0:
+                self.test_movement(y-2, x-1, p)
+            if x != 7:
+                self.test_movement(y-2, x+1, p)
         # down
-        if y <= 5 and (x != 0 and x != 7):
-            self.test_movement(y+2, x+1, p)
-            self.test_movement(y+2, x-1, p)
+        if y <= 5:
+            if x != 0:
+                self.test_movement(y+2, x-1, p)
+            if x != 7:
+                self.test_movement(y+2, x+1, p)
         # right
-        if x <= 5 and (y != 0 and y != 7):
-            self.test_movement(y+1, x+2, p)
-            self.test_movement(y-1, x+2, p)
+        if x <= 5:
+            if y != 0:
+                self.test_movement(y-1, x+2, p)
+            if y != 7:
+                self.test_movement(y+1, x+2, p)
+        
         # left
-        if x >= 2 and (y != 0 and y != 7):
-            self.test_movement(y-1, x-2, p)
-            self.test_movement(y+1, x-2, p)
+        if x >= 2:
+            if y != 0:
+                self.test_movement(y-1, x-2, p)
+            if y != 7:
+                self.test_movement(y+1, x-2, p)
 
     def bishop(self, p, y, x):
         # down and right
@@ -266,14 +281,14 @@ class Chess:
         self.main.darkRook   = PhotoImage(file=r"DarkRook.png").subsample(6, 6)
         self.main.darkKnight = PhotoImage(file=r"DarkKnight.png").subsample(6, 6)
         self.main.darkBishop = PhotoImage(file=r"DarkBishop.png").subsample(6, 6)
-        self.main.darkQueen  = PhotoImage(file=r"DarkQueen.png")
+        self.main.darkQueen  = PhotoImage(file=r"DarkQueen.png").subsample(6, 6)
         self.main.darkKing   = PhotoImage(file=r"DarkKing.png").subsample(6, 6)
         self.main.darkPawn   = PhotoImage(file=r"DarkPawn.png").subsample(6, 6)
 
         self.main.whiteRook   = PhotoImage(file=r"LightRook.png").subsample(6, 6)
-        self.main.whiteBishop = PhotoImage(file=r"LightBishop.png").subsample(4, 4)
+        self.main.whiteBishop = PhotoImage(file=r"LightBishop.png").subsample(6, 6)
         self.main.whiteKnight = PhotoImage(file=r"LightKnight.png").subsample(6, 6)
-        self.main.whiteQueen  = PhotoImage(file=r"LightQueen.png").subsample(4, 4)
+        self.main.whiteQueen  = PhotoImage(file=r"LightQueen.png").subsample(6, 6)
         self.main.whiteKing   = PhotoImage(file=r"LightKing.png").subsample(6, 6)
         self.main.whitePawn   = PhotoImage(file=r"LightPawn.png").subsample(6, 6)
 
@@ -372,6 +387,9 @@ class Chess:
     def run(self):
     
         self.main = Tk()
+
+        self.main.title("Chess")
+        self.center_window(528, 528)
 
         self.set_up()
         for i in range(8):
