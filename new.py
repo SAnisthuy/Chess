@@ -343,7 +343,50 @@ class Chess:
                     self.update_button(y, i, bg='red')
 
     def king(self, p, y, x):
-        pass
+        if p == self.wKING:
+            #up 
+            if y != 0:
+                if self.grid[y-1][x] == 0 or self.grid[y-1][x] > 10:
+                    self.track.add((y-1, x))
+                    self.update_button(y-1, x, bg='red')
+            # down
+            if y != 7:
+                if self.grid[y+1][x] == 0 or self.grid[y+1][x] > 10:
+                    self.track.add((y+1, x))
+                    self.update_button(y+1, x, bg='red')
+
+            #left 
+            if x != 0:
+                if self.grid[y][x-1] == 0 or self.grid[y][x-1] > 10:
+                    self.track.add((y, x-1))
+                    self.update_button(y, x-1, bg='red')
+            # right
+            if x != 7:
+                if self.grid[y][x+1] == 0 or self.grid[y][x+1] > 10:
+                    self.track.add((y, x+1))
+                    self.update_button(y, x+1, bg='red')
+        else:
+                        #up 
+            if y != 0:
+                if self.grid[y-1][x] == 0 or self.grid[y-1][x] < 10:
+                    self.track.add((y-1, x))
+                    self.update_button(y-1, x, bg='red')
+            # down
+            if y != 7:
+                if self.grid[y+1][x] == 0 or self.grid[y+1][x] < 10:
+                    self.track.add((y+1, x))
+                    self.update_button(y+1, x, bg='red')
+
+            #left 
+            if x != 0:
+                if self.grid[y][x-1] == 0 or self.grid[y][x-1] < 10:
+                    self.track.add((y, x-1))
+                    self.update_button(y, x-1, bg='red')
+            # right
+            if x != 7:
+                if self.grid[y][x+1] == 0 or self.grid[y][x+1] < 10:
+                    self.track.add((y, x+1))
+                    self.update_button(y, x+1, bg='red')
 
     def set_up(self):
         
@@ -450,6 +493,12 @@ class Chess:
             elif self.grid[y][x] == self.bQUEEN:
                 self.bishop(self.bBISHOP, y, x)
                 self.rook(self.bROOK, y, x)
+
+            elif self.grid[y][x] == self.wKING:
+                self.king(self.wKING, y, x)
+            
+            elif self.grid[y][x] == self.bKING:
+                self.king(self.bKING, y, x)
 
         else:
             for y, x in self.track:
