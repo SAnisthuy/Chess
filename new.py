@@ -15,6 +15,20 @@ class Chess:
             btn = widgets[0]
             btn.config(**kwargs)
 
+    def test_movement(self, y, x, p):
+        if p < 10:
+            if self.grid[y][x] == 0 or self.grid[y][x] > 10:
+                self.track.add((y, x))
+                self.update_button(y, x, bg='orange')
+            else:
+                pass
+        else:
+            if self.grid[y][x] == 0 or self.grid[y][x] < 10:
+                self.track.add((y, x))
+                self.update_button(y, x, bg='orange')
+            else:
+                pass
+
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
         if self.select != None: # Selects an empty square with something previously selected
@@ -111,7 +125,22 @@ class Chess:
                         self.update_button(y+1, x+1, bg='orange')
 
     def knight(self, p, y, x):
-        pass
+        # up
+        if y >= 2 and (x != 0 and x != 7):
+            self.test_movement(y-2, x+1, p)
+            self.test_movement(y-2, x-1, p)
+        # down
+        if y <= 5 and (x != 0 and x != 7):
+            self.test_movement(y+2, x+1, p)
+            self.test_movement(y+2, x-1, p)
+        # right
+        if x <= 5 and (y != 0 and y != 7):
+            self.test_movement(y+1, x+2, p)
+            self.test_movement(y-1, x+2, p)
+        # left
+        if x >= 2 and (y != 0 and y != 7):
+            self.test_movement(y-1, x-2, p)
+            self.test_movement(y+1, x-2, p)
 
     def bishop(self, p, y, x):
         if p == self.wBISHOP:
@@ -366,8 +395,32 @@ class Chess:
                 if self.grid[y][x+1] == 0 or self.grid[y][x+1] > 10:
                     self.track.add((y, x+1))
                     self.update_button(y, x+1, bg='orange')
+
+            # up and right
+            if y != 0 and x != 7:
+                if self.grid[y-1][x+1] == 0 or self.grid[y-1][x+1] > 10:
+                    self.track.add((y-1, x+1))
+                    self.update_button(y-1, x+1, bg='orange')
+            # up and left
+            if y != 0 and x != 0:
+                if self.grid[y-1][x-1] == 0 or self.grid[y-1][x-1] > 10:
+                    self.track.add((y-1, x-1))
+                    self.update_button(y-1, x-1, bg='orange')
+
+            # down and right
+            if y!= 7 and x != 7:
+                if self.grid[y+1][x+1] == 0 or self.grid[y+1][x+1] > 10:
+                    self.track.add((y+1, x+1))
+                    self.update_button(y+1, x+1, bg='orange')
+            # down and left
+            if y != 7 and x != 0:
+                if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] > 10:
+                    self.track.add((y+1, x-1))
+                    self.update_button(y+1, x-1, bg='orange')
+            
+
         else:
-                        #up 
+            # up
             if y != 0:
                 if self.grid[y-1][x] == 0 or self.grid[y-1][x] < 10:
                     self.track.add((y-1, x))
@@ -388,6 +441,28 @@ class Chess:
                 if self.grid[y][x+1] == 0 or self.grid[y][x+1] < 10:
                     self.track.add((y, x+1))
                     self.update_button(y, x+1, bg='orange')
+
+            # up and right
+            if y != 0 and x != 7:
+                if self.grid[y-1][x+1] == 0 or self.grid[y-1][x+1] < 10:
+                    self.track.add((y-1, x+1))
+                    self.update_button(y-1, x+1, bg='orange')
+            # up and left
+            if y != 0 and x != 0:
+                if self.grid[y-1][x-1] == 0 or self.grid[y-1][x-1] < 10:
+                    self.track.add((y-1, x-1))
+                    self.update_button(y-1, x-1, bg='orange')
+
+            # down and right
+            if y!= 7 and x != 7:
+                if self.grid[y+1][x+1] == 0 or self.grid[y+1][x+1] < 10:
+                    self.track.add((y+1, x+1))
+                    self.update_button(y+1, x+1, bg='orange')
+            # down and left
+            if y != 7 and x != 0:
+                if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] < 10:
+                    self.track.add((y+1, x-1))
+                    self.update_button(y+1, x-1, bg='orange')
 
     def set_up(self):
         
@@ -500,6 +575,12 @@ class Chess:
             
             elif self.grid[y][x] == self.bKING:
                 self.king(self.bKING, y, x)
+
+            elif self.grid[y][x] == self.wKNIGHT:
+                self.knight(self.wKNIGHT, y, x)
+
+            elif self.grid[y][x] == self.bKNIGHT:
+                self.knight(self.bKNIGHT, y, x)
 
         else:
             for y, x in self.track:
