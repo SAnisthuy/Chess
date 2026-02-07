@@ -20,17 +20,25 @@ class Chess:
             if self.grid[y][x] == 0 or self.grid[y][x] > 10:
                 self.track.add((y, x))
                 self.update_button(y, x, bg='orange')
-            else:
-                pass
         else:
             if self.grid[y][x] == 0 or self.grid[y][x] < 10:
                 self.track.add((y, x))
                 self.update_button(y, x, bg='orange')
-            else:
-                pass
+
+    def cancel_move(self, y, x):
+        self.update_button(self.prev[0], self.prev[1], bg=self.prev[2])
+        self.select = None
+        self.interact(y, x, reverse=True)
+        self.prev =None
+        if self.turn:
+            self.turn = False
+        else:
+            self.turn = True
+        
 
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
+
         if self.select != None: # Selects an empty square with something previously selected
             if (y, x) in self.track:
                 self.grid[y][x] = self.select
@@ -41,7 +49,8 @@ class Chess:
                 self.grid[self.prev[0]][self.prev[1]] = 0
                 self.prev =None
             else:
-                print("Invalid move")
+                self.cancel_move(y, x)
+
 
         elif self.select == None and self.grid[y][x] != 0: # Selects a non-empty square with nothing previously selected
             if self.turn and self.grid[y][x] < 10 or self.turn != True and self.grid[y][x] > 10:
@@ -56,80 +65,30 @@ class Chess:
             else:
                 pass
         else: # Neither
-            print("Invalid interaction")
+            pass
     
     def pawn(self, p, y, x):
-        if p == 1:
-            if y == 6 and self.grid[y-2][x] == 0 and self.grid[y-1][x] == 0:
-                self.test_movement(y-1, x, p)
-                self.test_movement(y-2, x, p)
-
-            elif self.grid[y-1][x] == 0: # If the square ahead is empty
-                self.update_button(y-1, x, bg='orange') 
-                self.track.add((y-1, x))
-            try:
-                if self.grid[y-1][x+1] != 0 or self.grid[y-1][x-1] != 0: # If square is empty and side square are not empty
-                    if self.grid[y-1][x+1] == 0 or self.grid[y-1][x+1] < 10: # if this square is empty then pass
-                        pass
-                    else:
-                        self.track.add((y-1, x+1))  # else add it to track
-                        self.update_button(y-1, x+1, bg='orange') 
-
-                    if self.grid[y-1][x-1] == 0 or self.grid[y-1][x-1] < 10: # If this square is empty then pass
-                        pass
-                    else:
-                        self.track.add((y-1, x-1)) # else add it to track
-                        self.update_button(y-1, x-1, bg='orange') 
-
-            except IndexError:
-                if x == 7:
-                    if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] < 10: # If this square is empty then pass
-                        pass
-                    else:
-                        self.track.add((y+1, x-1)) # else add it to track
-                        self.update_button(y+1, x-1, bg='orange') 
-
-                elif x == 0:
-                    if self.grid[y+1][x+1] == 0 or self.grid[y+1][x+1] < 10: # if this square is empty then pass
-                        pass
-                    else:
-                        self.track.add((y+1, x+1))  # else add it to track
-                        self.update_button(y+1, x+1, bg='orange') 
-
-        elif p == 11:
-            if y == 1 and self.grid[y+2][x] == 0 and self.grid[y+1][x] == 0:
-                self.test_movement(y+1, x, p)
-                self.test_movement(y+2, x, p)
-
-            elif self.grid[y+1][x] == 0 or self.grid[y+1][x] > 10: # check if square ahead is empty
-                    self.update_button(y+1, x, bg='orange')
-                    self.track.add((y+1, x))
-            try:
-                if self.grid[y+1][x+1] != 0 or self.grid[y+1][x-1] != 0: # If square is empty and side square are not empty
-                    if self.grid[y+1][x+1] == 0 or self.grid[y+1][x+1] > 10: # if this square is empty then pass
-                        pass
-                    else:
-                        self.track.add((y+1, x+1))  # else add it to track
-                        self.update_button(y+1, x+1, bg='orange')
-
-                    if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] > 10: # If this square is empty then pass
-                        pass
-                    else:
-                        self.track.add((y+1, x-1)) # else add it to track
-                        self.update_button(y+1, x-1, bg='orange')
-            except IndexError:
-                if x == 7:
-                    if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] > 10: # If this square is empty then pass
-                        pass
-                    else:
-                        self.track.add((y+1, x-1)) # else add it to track
-                        self.update_button(y+1, x-1, bg='orange')
-                elif x == 0:
-                    if self.grid[y+1][x+1] == 0 or self.grid[y+1][x+1] > 10: # if this square is empty then pass
-                        pass
-                    else:
-                        self.track.add((y+1, x+1))  # else add it to track
-                        self.update_button(y+1, x+1, bg='orange')
+            if p == self.wPAWN:
+                if self.grid[y-1][x] == 0:
+                    if y == 6 and self.grid[y-2][x] == 0:
+                        self.test_movement(y-2, x, p)
+                    self.test_movement(y-1, x, p)
+                if x > 0 and self.grid[y-1][x-1] > 10:
+                    self.test_movement(y-1, x-1, p)
+                
+                if x < 7 and self.grid[y-1][x+1] > 10:
+                    self.test_movement(y-1, x+1, p)
+                
+            else:
+                if self.grid[y+1][x] == 0:
+                    if y == 1 and self.grid[y+2][x] == 0:
+                        self.test_movement(y+2, x, p)
+                    self.test_movement(y+1, x, p)
+                if x > 0 and 0 < self.grid[y+1][x-1] < 10:
+                    self.test_movement(y+1, x-1, p)
+                
+                if x < 7 and 0 < self.grid[y+1][x+1] < 10:
+                    self.test_movement(y+1, x+1, p)
 
     def knight(self, p, y, x):
         # up
@@ -150,326 +109,103 @@ class Chess:
             self.test_movement(y+1, x-2, p)
 
     def bishop(self, p, y, x):
-        if p == self.wBISHOP:
-            # down and right
-            if abs(x-8) > abs(y-8):
-                l = abs(y-8)
-            else:
-                l = abs(x-8)
-            for i in range(1, l):
-                curr = self.grid[y+i][x+i]
-                if curr != 0:
-                    if curr > 10:
-                        self.track.add((y+i, x+i))
-                        self.update_button(y+i, x+i, bg='orange')
-
-                    break
-                else:
-                    self.track.add((y+i, x+i))
-                    self.update_button(y+i, x+i, bg='orange')
-        
-            # down and left
-            if abs(x-(-1)) > abs(y-8):
-                l = abs(8-y)
-            else:
-                l = abs(x-(-1))
-            for i in range(1, l):
-                curr = self.grid[y+i][x-i]
-                if curr != 0:
-                    if curr > 10:
-                        self.track.add((y+i, x-i))
-                        self.update_button(y+i, x-i, bg='orange')
-
-                    break
-                else:
-                    self.track.add((y+i, x-i))
-                    self.update_button(y+i, x-i, bg='orange')
-
-            # up and right
-            if abs(x-8) > abs(y-(-1)):
-                l = abs((-1)-y)
-            else:
-                l = abs(x-8)
-            for i in range(1, l):
-                curr = self.grid[y-i][x+i]
-                if curr != 0:
-                    if curr > 10:
-                        self.track.add((y-i, x+i))
-                        self.update_button(y-i, x+i, bg='orange')
-
-                    break
-                else:
-                    self.track.add((y-i, x+i))
-                    self.update_button(y-i, x+i, bg='orange')
-
-            # up and left
-            if abs(x-(-1)) > abs(y-(-1)):
-                l = abs((-1)-y)
-            else:
-                l = abs(x-(-1))
-            for i in range(1, l):
-                curr = self.grid[y-i][x-i]
-                if curr != 0:
-                    if curr > 10:
-                        self.track.add((y-i, x-i))
-                        self.update_button(y-i, x-i, bg='orange')
-
-                    break
-                else:
-                    self.track.add((y-i, x-i))
-                    self.update_button(y-i, x-i, bg='orange')
+        # down and right
+        if abs(x-8) > abs(y-8):
+            l = abs(y-8)
         else:
-            # down and right
-            if abs(x-8) > abs(y-8):
-                l = abs(y-8)
-            else:
-                l = abs(x-8)
-            for i in range(1, l):
-                curr = self.grid[y+i][x+i]
-                if curr != 0:
-                    if curr < 10:
-                        self.track.add((y+i, x+i))
-                        self.update_button(y+i, x+i, bg='orange')
+            l = abs(x-8)
+        for i in range(1, l):
+            curr = self.grid[y+i][x+i]
+            self.test_movement(y+i, x+i, p)
+            if curr != 0:
+                break
+    
+        # down and left
+        if abs(x-(-1)) > abs(y-8):
+            l = abs(8-y)
+        else:
+            l = abs(x-(-1))
+        for i in range(1, l):
+            curr = self.grid[y+i][x-i]
+            self.test_movement(y+i, x-i, p)
+            if curr != 0:
+                break
 
-                    break
-                else:
-                    self.track.add((y+i, x+i))
-                    self.update_button(y+i, x+i, bg='orange')
-        
-            # down and left
-            if abs(x-(-1)) > abs(y-8):
-                l = abs(8-y)
-            else:
-                l = abs(x-(-1))
-            for i in range(1, l):
-                curr = self.grid[y+i][x-i]
-                if curr != 0:
-                    if curr < 10:
-                        self.track.add((y+i, x-i))
-                        self.update_button(y+i, x-i, bg='orange')
+        # up and right
+        if abs(x-8) > abs(y-(-1)):
+            l = abs((-1)-y)
+        else:
+            l = abs(x-8)
+        for i in range(1, l):
+            curr = self.grid[y-i][x+i]
+            self.test_movement(y-i, x+i, p)
+            if curr != 0:
+                break
 
-                    break
-                else:
-                    self.track.add((y+i, x-i))
-                    self.update_button(y+i, x-i, bg='orange')
-
-            # up and right
-            if abs(x-8) > abs(y-(-1)):
-                l = abs((-1)-y)
-            else:
-                l = abs(x-8)
-            for i in range(1, l):
-                curr = self.grid[y-i][x+i]
-                if curr != 0:
-                    if curr < 10:
-                        self.track.add((y-i, x+i))
-                        self.update_button(y-i, x, bg='orange')
-
-                    break
-                else:
-                    self.track.add((y-i, x+i))
-                    self.update_button(y-i, x+i, bg='orange')
-
-            # up and left
-            if abs(x-(-1)) > abs(y-(-1)):
-                l = abs((-1)-y)
-            else:
-                l = abs(x-(-1))
-            for i in range(1, l):
-                curr = self.grid[y-i][x-i]
-                if curr != 0:
-                    if curr < 10:
-                        self.track.add((y-i, x-i))
-                        self.update_button(y-i, x-i, bg='orange')
-
-                    break
-                else:
-                    self.track.add((y-i, x-i))
-                    self.update_button(y-i, x-i, bg='orange')
+        # up and left
+        if abs(x-(-1)) > abs(y-(-1)):
+            l = abs((-1)-y)
+        else:
+            l = abs(x-(-1))
+        for i in range(1, l):
+            curr = self.grid[y-i][x-i]
+            self.test_movement(y-i, x-i, p)
+            if curr != 0:
+                break
             
     def rook(self, p, y, x):
-        if p == self.wROOK:
-            # vertical up
-            for i in range(y-1, -1, -1):
-                if self.grid[i][x] != 0:
-                    if self.grid[i][x] > 10:
-                        self.track.add((i, x))
-                        self.update_button(i, x, bg='orange')
+        # vertical up
+        for i in range(y-1, -1, -1):
+            curr = self.grid[i][x]
+            self.test_movement(i, x, p)
+            if curr != 0:
+                break
 
-                    break
-                else:
-                    self.track.add((i, x))
-                    self.update_button(i, x, bg='orange')
-            # vertical down
-            for i in range(y+1, 8):
-                if self.grid[i][x] != 0:
-                    if self.grid[i][x] > 10:
-                            self.track.add((i, x))
-                            self.update_button(i, x, bg='orange')
-                    break
-                else:
-                    self.track.add((i, x))
-                    self.update_button(i, x, bg='orange')
-            
-            # horizontal right
-            for i in range(x+1, 8):
-                if self.grid[y][i] != 0:
-                    if self.grid[y][i] > 10:
-                            self.track.add((y, i))
-                            self.update_button(y, i, bg='orange')
-                    break
-                else:
-                    self.track.add((y, i))
-                    self.update_button(y, i, bg='orange')
-            
-            # horizontal left
-            for i in range(x-1, -1, -1):
-                if self.grid[y][i] != 0:
-                    if self.grid[y][i] > 10:
-                            self.track.add((y, i))
-                            self.update_button(y, i, bg='orange')
+        # vertical down
+        for i in range(y+1, 8):
+            curr = self.grid[i][x]
+            self.test_movement(i, x, p)
+            if curr != 0:
+                break
 
-                    break
-                else:
-                    self.track.add((y, i))
-                    self.update_button(y, i, bg='orange')
-
-        if p == self.bROOK:
-            # vertical up
-            for i in range(y-1, -1, -1):
-                if self.grid[i][x] != 0:
-                    if self.grid[i][x] < 10:
-                        self.track.add((i, x))
-                        self.update_button(i, x, bg='orange')
-                    break
-                else:
-                    self.track.add((i, x))
-                    self.update_button(i, x, bg='orange')
-            # vertical down
-            for i in range(y+1, 8):
-                if self.grid[i][x] != 0:
-                    if self.grid[i][x] < 10:
-                            self.track.add((i, x))
-                            self.update_button(i, x, bg='orange')
-
-                    break
-                else:
-                    self.track.add((i, x))
-                    self.update_button(i, x, bg='orange')
-            
-            # horizontal right
-            for i in range(x+1, 8):
-                if self.grid[y][i] != 0:
-                    if self.grid[y][i] < 10:
-                            self.track.add((y, i))
-                            self.update_button(y, i, bg='orange')
-                    break
-                else:
-                    self.track.add((y, i))
-                    self.update_button(y, i, bg='orange')
-            
-            # horizontal left
-            for i in range(x-1, -1, -1):
-                if self.grid[y][i] != 0:
-                    if self.grid[y][i] < 10:
-                            self.track.add((y, i))
-                            self.update_button(y, i, bg='orange')                    
-                    break
-                else:
-                    self.track.add((y, i))
-                    self.update_button(y, i, bg='orange')
+        # horizontal right
+        for i in range(x+1, 8):
+            curr = self.grid[y][i]
+            self.test_movement(y, i, p)
+            if curr != 0:
+                break
+        
+        # horizontal left
+        for i in range(x-1, -1, -1):
+            curr = self.grid[y][i]
+            self.test_movement(y, i, p)
+            if curr != 0:
+                break
 
     def king(self, p, y, x):
-        if p == self.wKING:
             #up 
             if y != 0:
-                if self.grid[y-1][x] == 0 or self.grid[y-1][x] > 10:
-                    self.track.add((y-1, x))
-                    self.update_button(y-1, x, bg='orange')
+                self.test_movement(y-1, x, p)
             # down
             if y != 7:
-                if self.grid[y+1][x] == 0 or self.grid[y+1][x] > 10:
-                    self.track.add((y+1, x))
-                    self.update_button(y+1, x, bg='orange')
-
+                self.test_movement(y+1, x, p)
             #left 
             if x != 0:
-                if self.grid[y][x-1] == 0 or self.grid[y][x-1] > 10:
-                    self.track.add((y, x-1))
-                    self.update_button(y, x-1, bg='orange')
-            # right
+                self.test_movement(y, x-1, p)
             if x != 7:
-                if self.grid[y][x+1] == 0 or self.grid[y][x+1] > 10:
-                    self.track.add((y, x+1))
-                    self.update_button(y, x+1, bg='orange')
-
+                self.test_movement(y, x+1, p)
             # up and right
             if y != 0 and x != 7:
-                if self.grid[y-1][x+1] == 0 or self.grid[y-1][x+1] > 10:
-                    self.track.add((y-1, x+1))
-                    self.update_button(y-1, x+1, bg='orange')
+                self.test_movement(y-1, x+1, p)
             # up and left
             if y != 0 and x != 0:
-                if self.grid[y-1][x-1] == 0 or self.grid[y-1][x-1] > 10:
-                    self.track.add((y-1, x-1))
-                    self.update_button(y-1, x-1, bg='orange')
-
+                self.test_movement(y-1, x-1, p)
             # down and right
             if y!= 7 and x != 7:
-                if self.grid[y+1][x+1] == 0 or self.grid[y+1][x+1] > 10:
-                    self.track.add((y+1, x+1))
-                    self.update_button(y+1, x+1, bg='orange')
+                self.test_movement(y+1, x+1, p)
             # down and left
             if y != 7 and x != 0:
-                if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] > 10:
-                    self.track.add((y+1, x-1))
-                    self.update_button(y+1, x-1, bg='orange')
-            
-
-        else:
-            # up
-            if y != 0:
-                if self.grid[y-1][x] == 0 or self.grid[y-1][x] < 10:
-                    self.track.add((y-1, x))
-                    self.update_button(y-1, x, bg='orange')
-            # down
-            if y != 7:
-                if self.grid[y+1][x] == 0 or self.grid[y+1][x] < 10:
-                    self.track.add((y+1, x))
-                    self.update_button(y+1, x, bg='orange')
-
-            #left 
-            if x != 0:
-                if self.grid[y][x-1] == 0 or self.grid[y][x-1] < 10:
-                    self.track.add((y, x-1))
-                    self.update_button(y, x-1, bg='orange')
-            # right
-            if x != 7:
-                if self.grid[y][x+1] == 0 or self.grid[y][x+1] < 10:
-                    self.track.add((y, x+1))
-                    self.update_button(y, x+1, bg='orange')
-
-            # up and right
-            if y != 0 and x != 7:
-                if self.grid[y-1][x+1] == 0 or self.grid[y-1][x+1] < 10:
-                    self.track.add((y-1, x+1))
-                    self.update_button(y-1, x+1, bg='orange')
-            # up and left
-            if y != 0 and x != 0:
-                if self.grid[y-1][x-1] == 0 or self.grid[y-1][x-1] < 10:
-                    self.track.add((y-1, x-1))
-                    self.update_button(y-1, x-1, bg='orange')
-
-            # down and right
-            if y!= 7 and x != 7:
-                if self.grid[y+1][x+1] == 0 or self.grid[y+1][x+1] < 10:
-                    self.track.add((y+1, x+1))
-                    self.update_button(y+1, x+1, bg='orange')
-            # down and left
-            if y != 7 and x != 0:
-                if self.grid[y+1][x-1] == 0 or self.grid[y+1][x-1] < 10:
-                    self.track.add((y+1, x-1))
-                    self.update_button(y+1, x-1, bg='orange')
+                self.test_movement(y+1, x-1, p)
 
     def set_up(self):
         
