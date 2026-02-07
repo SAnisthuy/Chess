@@ -47,7 +47,7 @@ class Chess:
     def pawn(self, p, y, x):
         if p == 1:
             if self.grid[y-1][x] == 0: # If the square ahead is empty
-                self.update_button(y-1, x, image=self.main.selected) 
+                self.update_button(y-1, x, bg='red') 
                 self.track.add((y-1, x))
             try:
                 if self.grid[y-1][x+1] != 0 or self.grid[y-1][x-1] != 0: # If square is empty and side square are not empty
@@ -55,25 +55,32 @@ class Chess:
                         pass
                     else:
                         self.track.add((y-1, x+1))  # else add it to track
+                        self.update_button(y-1, x+1, bg='red') 
 
                     if self.grid[y-1][x-1] == 0: # If this square is empty then pass
                         pass
                     else:
                         self.track.add((y-1, x-1)) # else add it to track
+                        self.update_button(y-1, x-1, bg='red') 
+
             except IndexError:
                 if x == 7:
                     if self.grid[y+1][x-1] == 0: # If this square is empty then pass
                         pass
                     else:
                         self.track.add((y+1, x-1)) # else add it to track
+                        self.update_button(y+1, x-1, bg='red') 
+
                 elif x == 0:
                     if self.grid[y+1][x+1] == 0: # if this square is empty then pass
                         pass
                     else:
                         self.track.add((y+1, x+1))  # else add it to track
+                        self.update_button(y+1, x+1, bg='red') 
+
         elif p == 11:
             if self.grid[y+1][x] == 0: # check if square ahead is empty
-                    self.update_button(y+1, x, image=self.main.selected)
+                    self.update_button(y+1, x, bg='red')
                     self.track.add((y+1, x))
             try:
                 if self.grid[y+1][x+1] != 0 or self.grid[y+1][x-1] != 0: # If square is empty and side square are not empty
@@ -113,10 +120,12 @@ class Chess:
                 if curr != 0:
                     if curr > 10:
                         self.track.add((y+i, x+i))
+                        self.update_button(y+i, x+i, bg='red')
+
                     break
                 else:
                     self.track.add((y+i, x+i))
-                    self.update_button(y+i, x+i, image=self.main.selected)
+                    self.update_button(y+i, x+i, bg='red')
         
             # down and left
             if abs(x-(-1)) > abs(y-8):
@@ -128,10 +137,12 @@ class Chess:
                 if curr != 0:
                     if curr > 10:
                         self.track.add((y+i, x-i))
+                        self.update_button(y+i, x-i, bg='red')
+
                     break
                 else:
                     self.track.add((y+i, x-i))
-                    self.update_button(y+i, x-i, image=self.main.selected)
+                    self.update_button(y+i, x-i, bg='red')
 
             # up and right
             if abs(x-8) > abs(y-(-1)):
@@ -143,10 +154,12 @@ class Chess:
                 if curr != 0:
                     if curr > 10:
                         self.track.add((y-i, x+i))
+                        self.update_button(y-i, x+i, bg='red')
+
                     break
                 else:
                     self.track.add((y-i, x+i))
-                    self.update_button(y-i, x+i, image=self.main.selected)
+                    self.update_button(y-i, x+i, bg='red')
 
             # up and left
             if abs(x-(-1)) > abs(y-(-1)):
@@ -158,10 +171,12 @@ class Chess:
                 if curr != 0:
                     if curr > 10:
                         self.track.add((y-i, x-i))
+                        self.update_button(y-i, x-i, bg='red')
+
                     break
                 else:
                     self.track.add((y-i, x-i))
-                    self.update_button(y-i, x-i, image=self.main.selected)
+                    self.update_button(y-i, x-i, bg='red')
         else:
             # down and right
             if abs(x-8) > abs(y-8):
@@ -173,10 +188,12 @@ class Chess:
                 if curr != 0:
                     if curr < 10:
                         self.track.add((y+i, x+i))
+                        self.update_button(y+i, x+i, bg='red')
+
                     break
                 else:
                     self.track.add((y+i, x+i))
-                    self.update_button(y+i, x+i, image=self.main.selected)
+                    self.update_button(y+i, x+i, bg='red')
         
             # down and left
             if abs(x-(-1)) > abs(y-8):
@@ -188,10 +205,12 @@ class Chess:
                 if curr != 0:
                     if curr < 10:
                         self.track.add((y+i, x-i))
+                        self.update_button(y+i, x-i, bg='red')
+
                     break
                 else:
                     self.track.add((y+i, x-i))
-                    self.update_button(y+i, x-i, image=self.main.selected)
+                    self.update_button(y+i, x-i, bg='red')
 
             # up and right
             if abs(x-8) > abs(y-(-1)):
@@ -203,10 +222,12 @@ class Chess:
                 if curr != 0:
                     if curr < 10:
                         self.track.add((y-i, x+i))
+                        self.update_button(y-i, x, bg='red')
+
                     break
                 else:
                     self.track.add((y-i, x+i))
-                    self.update_button(y-i, x+i, image=self.main.selected)
+                    self.update_button(y-i, x+i, bg='red')
 
             # up and left
             if abs(x-(-1)) > abs(y-(-1)):
@@ -218,10 +239,12 @@ class Chess:
                 if curr != 0:
                     if curr < 10:
                         self.track.add((y-i, x-i))
+                        self.update_button(y-i, x-i, bg='red')
+
                     break
                 else:
                     self.track.add((y-i, x-i))
-                    self.update_button(y-i, x-i, image=self.main.selected)
+                    self.update_button(y-i, x-i, bg='red')
             
     def rook(self, p, y, x):
         if p == self.wROOK:
@@ -230,39 +253,45 @@ class Chess:
                 if self.grid[i][x] != 0:
                     if self.grid[i][x] > 10:
                         self.track.add((i, x))
+                        self.update_button(i, x, bg='red')
+
                     break
                 else:
                     self.track.add((i, x))
-                    self.update_button(i, x, image=self.main.selected)
+                    self.update_button(i, x, bg='red')
             # vertical down
             for i in range(y+1, 8):
                 if self.grid[i][x] != 0:
                     if self.grid[i][x] > 10:
                             self.track.add((i, x))
+                            self.update_button(i, x, bg='red')
                     break
                 else:
                     self.track.add((i, x))
-                    self.update_button(i, x, image=self.main.selected)
+                    self.update_button(i, x, bg='red')
             
             # horizontal right
             for i in range(x+1, 8):
                 if self.grid[y][i] != 0:
                     if self.grid[y][i] > 10:
                             self.track.add((y, i))
+                            self.update_button(y, i, bg='red')
                     break
                 else:
                     self.track.add((y, i))
-                    self.update_button(y, i, image=self.main.selected)
+                    self.update_button(y, i, bg='red')
             
             # horizontal left
             for i in range(x-1, -1, -1):
                 if self.grid[y][i] != 0:
                     if self.grid[y][i] > 10:
                             self.track.add((y, i))
+                            self.update_button(y, i, bg='red')
+
                     break
                 else:
                     self.track.add((y, i))
-                    self.update_button(y, i, image=self.main.selected)
+                    self.update_button(y, i, bg='red')
 
         if p == self.bROOK:
             # vertical up
@@ -270,39 +299,44 @@ class Chess:
                 if self.grid[i][x] != 0:
                     if self.grid[i][x] < 10:
                         self.track.add((i, x))
+                        self.update_button(i, x, bg='red')
                     break
                 else:
                     self.track.add((i, x))
-                    self.update_button(i, x, image=self.main.selected)
+                    self.update_button(i, x, bg='red')
             # vertical down
             for i in range(y+1, 8):
                 if self.grid[i][x] != 0:
                     if self.grid[i][x] < 10:
                             self.track.add((i, x))
+                            self.update_button(i, x, bg='red')
+
                     break
                 else:
                     self.track.add((i, x))
-                    self.update_button(i, x, image=self.main.selected)
+                    self.update_button(i, x, bg='red')
             
             # horizontal right
             for i in range(x+1, 8):
                 if self.grid[y][i] != 0:
                     if self.grid[y][i] < 10:
                             self.track.add((y, i))
+                            self.update_button(y, i, bg='red')
                     break
                 else:
                     self.track.add((y, i))
-                    self.update_button(y, i, image=self.main.selected)
+                    self.update_button(y, i, bg='red')
             
             # horizontal left
             for i in range(x-1, -1, -1):
                 if self.grid[y][i] != 0:
                     if self.grid[y][i] < 10:
                             self.track.add((y, i))
+                            self.update_button(y, i, bg='red')                    
                     break
                 else:
                     self.track.add((y, i))
-                    self.update_button(y, i, image=self.main.selected)
+                    self.update_button(y, i, bg='red')
 
     def king(self, p, y, x):
         pass
@@ -413,11 +447,10 @@ class Chess:
                 self.bishop(self.bBISHOP, y, x)
                 self.rook(self.bROOK, y, x)
 
-
         else:
             for y, x in self.track:
-                if self.grid[y][x] == 0:
-                    self.update_button(y, x, image=self.main.blank)
+                color = "gray" if (y + x) % 2 else "white"
+                self.update_button(y, x, bg=color)
             self.track = set()
 
     def run(self):
