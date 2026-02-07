@@ -8,6 +8,8 @@ class Chess:
         self.prev = None
         self.turn = True
         self.track = set()
+        self.check_track = False
+        self.checking = False
 
     def update_button(self, row, col, **kwargs):
         widgets = self.main.grid_slaves(row=row, column=col) 
@@ -16,14 +18,24 @@ class Chess:
             btn.config(**kwargs)
 
     def test_movement(self, y, x, p):
+        c = self.checking
         if p < 10:
             if self.grid[y][x] == 0 or self.grid[y][x] > 10:
+                if c and self.grid[y][x] == 16:
+                    self.check_track = True
+                    self.update_button(y, x, bg='red')
                 self.track.add((y, x))
-                self.update_button(y, x, bg='orange')
+                if not c:
+                    self.update_button(y, x, bg='orange')
         else:
             if self.grid[y][x] == 0 or self.grid[y][x] < 10:
+                if c and self.grid[y][x] == 6:
+                    self.check_track = True
+                    self.update_button(y, x, bg='red')
+
                 self.track.add((y, x))
-                self.update_button(y, x, bg='orange')
+                if not c:
+                    self.update_button(y, x, bg='orange')
 
     def cancel_move(self, y, x):
         self.update_button(self.prev[0], self.prev[1], bg=self.prev[2])
@@ -91,6 +103,9 @@ class Chess:
                 self.interact(y, x, reverse=True)
                 # clear variables
                 self.prev, self.select = None, None
+                self.checking = True
+                self.interact(y, x)
+                self.checking = False
 
             else:
                 self.cancel_move(y, x)
@@ -102,6 +117,7 @@ class Chess:
                 self.update_button(y, x, bg="light green")
                 self.prev = (y, x, col)
                 self.interact(y, x)
+                self.check_track = False
                 if self.turn:
                     self.turn = False
                 else:
