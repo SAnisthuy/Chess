@@ -74,16 +74,27 @@ class Chess:
         self.update_button(y, x, image=self.pieces[val])
         self.promote.destroy()
 
-    def center_window(self, width, height):
+    def end(self):
+        self.main.quit()
+        self.main.destroy()
+        win = Tk()
+        self.center_window(250, 250, win)
+        win.config(bg='green')
+        win_text = Label(win, text="GAME OVER", font=("Helvetica", 16, "bold"))
+        win_text.pack(anchor=CENTER)
+        mainloop()
+
+
+    def center_window(self, width, height, root):
         # Get screen width and height
-        screen_width = self.main.winfo_screenwidth()
-        screen_height = self.main.winfo_screenheight()
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
 
         # Calculate x and y coordinates for the center of the screen
         x = (screen_width // 2) - (width // 2)
         y = (screen_height // 2) - (height // 2)
         # Set the geometry
-        self.main.geometry(f'{width}x{height}+{x}+{y}')
+        root.geometry(f'{width}x{height}+{x}+{y}')
 
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
@@ -92,6 +103,9 @@ class Chess:
             if (y, x) in self.track:
                 if (self.select == self.wPAWN and y == 0) or (self.select == self.bPAWN and y == 7):
                     self.promotion(y, x, self.select)
+                elif self.grid[y][x] == self.wKING or self.grid[y][x] == self.bKING:
+                    self.end()
+                    return None
                 else:
                     # update new square
                     self.grid[y][x] = self.select 
@@ -405,7 +419,7 @@ class Chess:
         self.main = Tk()
 
         self.main.title("Chess")
-        self.center_window(528, 528)
+        self.center_window(528, 528, self.main)
 
         self.set_up()
         for i in range(8):
