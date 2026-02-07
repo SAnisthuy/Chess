@@ -60,7 +60,11 @@ class Chess:
     
     def pawn(self, p, y, x):
         if p == 1:
-            if self.grid[y-1][x] == 0: # If the square ahead is empty
+            if y == 6 and self.grid[y-2][x] == 0 and self.grid[y-1][x] == 0:
+                self.test_movement(y-1, x, p)
+                self.test_movement(y-2, x, p)
+
+            elif self.grid[y-1][x] == 0: # If the square ahead is empty
                 self.update_button(y-1, x, bg='orange') 
                 self.track.add((y-1, x))
             try:
@@ -93,8 +97,11 @@ class Chess:
                         self.update_button(y+1, x+1, bg='orange') 
 
         elif p == 11:
+            if y == 1 and self.grid[y+2][x] == 0 and self.grid[y+1][x] == 0:
+                self.test_movement(y+1, x, p)
+                self.test_movement(y+2, x, p)
 
-            if self.grid[y+1][x] == 0 or self.grid[y+1][x] > 10: # check if square ahead is empty
+            elif self.grid[y+1][x] == 0 or self.grid[y+1][x] > 10: # check if square ahead is empty
                     self.update_button(y+1, x, bg='orange')
                     self.track.add((y+1, x))
             try:
