@@ -11,6 +11,15 @@ class Chess:
         self.check_track = False
         self.checking = False
 
+        #castling
+        self.wr1 = False
+        self.wr2 = False
+        self.wk = False
+
+        self.br1 = False
+        self.br2 = False
+        self.bk = False
+
     def update_button(self, row, col, **kwargs):
         widgets = self.main.grid_slaves(row=row, column=col) 
         if widgets:
@@ -24,18 +33,18 @@ class Chess:
                 if c and self.grid[y][x] == 16:
                     self.check_track = True
                     self.update_button(y, x, bg='red')
-                self.track.add((y, x))
                 if not c:
                     self.update_button(y, x, bg='orange')
+                    self.track.add((y, x))
         else:
             if self.grid[y][x] == 0 or self.grid[y][x] < 10:
                 if c and self.grid[y][x] == 6:
                     self.check_track = True
                     self.update_button(y, x, bg='red')
 
-                self.track.add((y, x))
                 if not c:
                     self.update_button(y, x, bg='orange')
+                    self.track.add((y, x))
 
     def cancel_move(self, y, x):
         self.update_button(self.prev[0], self.prev[1], bg=self.prev[2])
@@ -69,6 +78,66 @@ class Chess:
         Bishop.pack()
         Knight.pack()
 
+    def castling(self, y, x, check=False, p=None):
+        ck = True
+        cq = True
+        if check and p != None:
+            if p[0]: cq = False
+            if p[1]: ck = False
+            
+                
+            for i in range(1, 4):
+                if i > 2:
+                    if self.grid[y][x-i] != 0: cq = False
+                else: 
+                    if self.grid[y][x+i] != 0: ck = False
+                    if self.grid[y][x-i] != 0: cq = False
+
+            if cq:
+                self.update_button(y, x-4, bg='orange')
+                self.track.add((y, x-4))
+            if ck:
+                self.update_button(y, x+3, bg='orange')
+                self.track.add((y, x+3))
+
+
+        elif (self.prev[0] == 7 and self.prev[1] == 4 and not self.wk) or (self.prev[0] == 0 and self.prev[1] == 4 and not self.bk):
+            py, px = self.prev[0], self.prev[1]
+            prev = self.grid[py][px]
+            curr = self.grid[y][x]
+            if (((y, x) == (0, 0) and not self.br1) 
+                or ((y, x) == (0, 7) and not self.br2) 
+                or ((y, x) == (7, 0) and not self.wr1) 
+                or ((y, x) == (7, 7) and not self.wr2)):
+                                        
+
+                    self.grid[y][x] = 0                        
+                    self.update_button(y, x, image=self.pieces[self.grid[y][x]])
+                    self.grid[py][px] = 0
+                    self.update_button(py, px, image=self.pieces[self.grid[y][x]])
+
+                    if px < x:
+                        self.grid[y][x-2] = curr
+                        self.update_button(y, x-2, image=self.pieces[self.grid[y][x-2]])
+                        self.grid[py][px+2] = prev
+                        self.update_button(py, px+2, image=self.pieces[self.grid[py][px+2]])
+                   
+                    else:
+                        self.grid[y][x+3] = curr
+                        self.update_button(y, x+3, image=self.pieces[self.grid[y][x+3]])
+                        self.grid[py][px-2] = prev
+                        self.update_button(py, px-2, image=self.pieces[self.grid[py][px-2]])
+                        
+                    
+                    self.interact(y, x, reverse=True)
+                    self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2]) 
+
+                    self.select, self.prev = None, None
+                    if prev == self.wKING: self.wk = True
+                    else: self.bk = True
+
+        return False
+
     def promotion2(self, y, x, val):
         self.grid[y][x] = val 
         self.update_button(y, x, image=self.pieces[val])
@@ -83,7 +152,6 @@ class Chess:
         win_text = Label(win, text="GAME OVER", font=("Helvetica", 16, "bold"))
         win_text.pack(anchor=CENTER)
         mainloop()
-
 
     def center_window(self, width, height, root):
         # Get screen width and height
@@ -100,9 +168,13 @@ class Chess:
         col = "gray" if (y + x) % 2 else "white"
 
         if self.select != None: # Selects an empty square with something previously selected
-            if (y, x) in self.track:
+            if (self.select == self.wKING and self.grid[y][x] == self.wROOK) or (self.select == self.bKING and self.grid[y][x] == self.bROOK):
+                self.castling(y, x)
+
+            elif (y, x) in self.track:
                 if (self.select == self.wPAWN and y == 0) or (self.select == self.bPAWN and y == 7):
                     self.promotion(y, x, self.select)
+                
                 elif self.grid[y][x] == self.wKING or self.grid[y][x] == self.bKING:
                     self.end()
                     return None
@@ -237,6 +309,23 @@ class Chess:
                 break
             
     def rook(self, p, y, x):
+        
+        if not self.checking:
+
+            if (y == 0 and x == 0) and self.br1 == False:
+                self.br1 = True
+            
+            elif (y == 0 and x == 7) and self.br2 == False:
+                self.br2 = True
+
+            elif (y == 7 and x == 0) and self.wr1 == False:
+                self.wr1 = True
+
+            elif (y == 7 and x == 7) and self.wr2 == False:
+                print("here")
+                self.wr2 = True
+
+
         # vertical up
         for i in range(y-1, -1, -1):
             curr = self.grid[i][x]
@@ -266,6 +355,11 @@ class Chess:
                 break
 
     def king(self, p, y, x):
+            
+            if p < 10: 
+                if not self.wk: self.castling(y, x, check=True, p=[self.wr1, self.wr2])
+            else: 
+                if not self.bk: self.castling(y, x, check=True, p=[self.br1, self.br2])
             #up 
             if y != 0:
                 self.test_movement(y-1, x, p)
@@ -308,22 +402,22 @@ class Chess:
         
 
         # Load pieces
-        self.main.darkRook   = PhotoImage(file=r"DarkRook.png").subsample(6, 6)
-        self.main.darkKnight = PhotoImage(file=r"DarkKnight.png").subsample(6, 6)
-        self.main.darkBishop = PhotoImage(file=r"DarkBishop.png").subsample(6, 6)
-        self.main.darkQueen  = PhotoImage(file=r"DarkQueen.png").subsample(6, 6)
-        self.main.darkKing   = PhotoImage(file=r"DarkKing.png").subsample(6, 6)
-        self.main.darkPawn   = PhotoImage(file=r"DarkPawn.png").subsample(6, 6)
+        self.main.darkRook   = PhotoImage(file=r"Elements\DarkRook.png").subsample(6, 6)
+        self.main.darkKnight = PhotoImage(file=r"Elements\DarkKnight.png").subsample(6, 6)
+        self.main.darkBishop = PhotoImage(file=r"Elements\DarkBishop.png").subsample(6, 6)
+        self.main.darkQueen  = PhotoImage(file=r"Elements\DarkQueen.png").subsample(6, 6)
+        self.main.darkKing   = PhotoImage(file=r"Elements\DarkKing.png").subsample(6, 6)
+        self.main.darkPawn   = PhotoImage(file=r"Elements\DarkPawn.png").subsample(6, 6)
 
-        self.main.whiteRook   = PhotoImage(file=r"LightRook.png").subsample(6, 6)
-        self.main.whiteBishop = PhotoImage(file=r"LightBishop.png").subsample(6, 6)
-        self.main.whiteKnight = PhotoImage(file=r"LightKnight.png").subsample(6, 6)
-        self.main.whiteQueen  = PhotoImage(file=r"LightQueen.png").subsample(6, 6)
-        self.main.whiteKing   = PhotoImage(file=r"LightKing.png").subsample(6, 6)
-        self.main.whitePawn   = PhotoImage(file=r"LightPawn.png").subsample(6, 6)
+        self.main.whiteRook   = PhotoImage(file=r"Elements\LightRook.png").subsample(6, 6)
+        self.main.whiteBishop = PhotoImage(file=r"Elements\LightBishop.png").subsample(6, 6)
+        self.main.whiteKnight = PhotoImage(file=r"Elements\LightKnight.png").subsample(6, 6)
+        self.main.whiteQueen  = PhotoImage(file=r"Elements\LightQueen.png").subsample(6, 6)
+        self.main.whiteKing   = PhotoImage(file=r"Elements\LightKing.png").subsample(6, 6)
+        self.main.whitePawn   = PhotoImage(file=r"Elements\LightPawn.png").subsample(6, 6)
 
-        self.main.blank = PhotoImage(file=r"Blank.png")
-        self.main.selected = PhotoImage(file=r"selected.png").subsample(6, 6)
+        self.main.blank = PhotoImage(file=r"Elements\Blank.png")
+        self.main.selected = PhotoImage(file=r"Elements\selected.png").subsample(6, 6)
 
 
         # map
