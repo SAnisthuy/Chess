@@ -1,8 +1,4 @@
 from tkinter import *
-from stockfish import Stockfish
-
-stockfish = Stockfish(path=r"C:\Users\deepags\Downloads\stockfish-windows-x86-64-avx2\stockfish\stockfish-windows-x86-64-avx2.exe")
-
 
 
 class Chess:
@@ -167,15 +163,11 @@ class Chess:
         y = (screen_height // 2) - (height // 2)
         # Set the geometry
         root.geometry(f'{width}x{height}+{x}+{y}')
-
-    def checkmate(self):
-        eval = stockfish.get_evaluation()
-        eval = list(eval.items())
-        if eval[0][1] == 'mate' and eval[1][1] == 0:
-            print("MATE")
-
+            
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
+
+        self.create_FEN()
 
         if self.select != None: # Selects an empty square with something previously selected
             if (self.select == self.wROOK or self.select == self.bROOK) and (y, x) in self.track:
