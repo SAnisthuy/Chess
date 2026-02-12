@@ -1,4 +1,8 @@
 from tkinter import *
+from stockfish import Stockfish
+
+stockfish = Stockfish(path=r"C:\Users\deepags\Downloads\stockfish-windows-x86-64-avx2\stockfish\stockfish-windows-x86-64-avx2.exe")
+
 
 
 class Chess:
@@ -164,10 +168,18 @@ class Chess:
         # Set the geometry
         root.geometry(f'{width}x{height}+{x}+{y}')
 
+    def checkmate(self):
+        eval = stockfish.get_evaluation()
+        eval = list(eval.items())
+        if eval[0][1] == 'mate' and eval[1][1] == 0:
+            print("MATE")
+
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
 
         if self.select != None: # Selects an empty square with something previously selected
+            if (self.select == self.wROOK or self.select == self.bROOK) and (y, x) in self.track:
+                self.rook(p=self.select, y=self.prev[0], x=self.prev[1], turn=True)
             if (self.select == self.wKING and self.grid[y][x] == self.wROOK) or (self.select == self.bKING and self.grid[y][x] == self.bROOK):
                 self.castling(y, x)
 
@@ -308,22 +320,22 @@ class Chess:
             if curr != 0:
                 break
             
-    def rook(self, p, y, x):
+    def rook(self, p, y, x, turn=False):
         
         if not self.checking:
+            if turn:
+                if (y == 0 and x == 0) and self.br1 == False:
+                    self.br1 = True
+                
+                elif (y == 0 and x == 7) and self.br2 == False:
+                    self.br2 = True
 
-            if (y == 0 and x == 0) and self.br1 == False:
-                self.br1 = True
-            
-            elif (y == 0 and x == 7) and self.br2 == False:
-                self.br2 = True
+                elif (y == 7 and x == 0) and self.wr1 == False:
+                    self.wr1 = True
 
-            elif (y == 7 and x == 0) and self.wr1 == False:
-                self.wr1 = True
-
-            elif (y == 7 and x == 7) and self.wr2 == False:
-                print("here")
-                self.wr2 = True
+                elif (y == 7 and x == 7) and self.wr2 == False:
+                    self.wr2 = True
+                return None
 
 
         # vertical up
@@ -385,6 +397,11 @@ class Chess:
                 self.test_movement(y+1, x-1, p)
 
     def set_up(self):
+
+        #coords
+        self.x_coords = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        self.y_coords = [1, 2, 3, 4, 5, 6, 7, 8]
+
         
         self.wPAWN = 1
         self.wBISHOP = 2
