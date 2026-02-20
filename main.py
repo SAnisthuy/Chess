@@ -1,6 +1,5 @@
 from tkinter import *
 
-
 class Chess:
     def __init__(self):
         self.grid = []
@@ -46,6 +45,15 @@ class Chess:
                     self.update_button(y, x, bg='orange')
                     self.track.add((y, x))
 
+    def get_coords(self, y, x):
+        x_coords = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        y_coords = [8, 7, 6, 5, 4, 3, 2, 1]
+        
+        y1, x1 = y_coords[self.prev[0]], x_coords[self.prev[1]]
+        y2, x2 = y_coords[y], x_coords[x] 
+
+        print(f"{x1}{y1}{x2}{y2}")
+
     def cancel_move(self, y, x):
         self.update_button(self.prev[0], self.prev[1], bg=self.prev[2])
         self.select = None
@@ -55,7 +63,7 @@ class Chess:
             self.turn = False
         else:
             self.turn = True
-            
+
     def promotion(self, y, x, p):
         self.promote = Toplevel(self.main)
         self.promote.geometry('125x275+1250+276')
@@ -94,11 +102,11 @@ class Chess:
                     if self.grid[y][x-i] != 0: cq = False
 
             if cq:
-                self.update_button(y, x-4, bg='orange')
-                self.track.add((y, x-4))
+                self.update_button(y, x-2, bg='orange')
+                self.track.add((y, x-2))
             if ck:
-                self.update_button(y, x+3, bg='orange')
-                self.track.add((y, x+3))
+                self.update_button(y, x+2, bg='orange')
+                self.track.add((y, x+2))
 
 
         elif (self.prev[0] == 7 and self.prev[1] == 4 and not self.wk) or (self.prev[0] == 0 and self.prev[1] == 4 and not self.bk):
@@ -123,7 +131,7 @@ class Chess:
                         self.update_button(py, px+2, image=self.pieces[self.grid[py][px+2]])
                    
                     else:
-                        self.grid[y][x+3] = curr
+                        self.grid[y][x+2] = curr
                         self.update_button(y, x+3, image=self.pieces[self.grid[y][x+3]])
                         self.grid[py][px-2] = prev
                         self.update_button(py, px-2, image=self.pieces[self.grid[py][px-2]])
@@ -167,9 +175,9 @@ class Chess:
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
 
-        self.create_FEN()
+        if self.select != None: # Selects a square with something previously selected
+            self.get_coords(y, x)
 
-        if self.select != None: # Selects an empty square with something previously selected
             if (self.select == self.wROOK or self.select == self.bROOK) and (y, x) in self.track:
                 self.rook(p=self.select, y=self.prev[0], x=self.prev[1], turn=True)
             if (self.select == self.wKING and self.grid[y][x] == self.wROOK) or (self.select == self.bKING and self.grid[y][x] == self.bROOK):
@@ -389,11 +397,6 @@ class Chess:
                 self.test_movement(y+1, x-1, p)
 
     def set_up(self):
-
-        #coords
-        self.x_coords = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-        self.y_coords = [1, 2, 3, 4, 5, 6, 7, 8]
-
         
         self.wPAWN = 1
         self.wBISHOP = 2
@@ -533,7 +536,6 @@ class Chess:
                 btn.grid(row=i, column=j, sticky="nsew")
 
         mainloop()
-
 
 run = Chess()
 run.run()
