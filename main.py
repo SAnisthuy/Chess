@@ -1,4 +1,9 @@
 from tkinter import *
+from stockfish import Stockfish
+
+stockfish = Stockfish(r"C:\Users\sansi\Downloads\stockfish\stockfish-windows-x86-64-avx2.exe")
+
+
 
 class Chess:
     def __init__(self):
@@ -52,7 +57,7 @@ class Chess:
         y1, x1 = y_coords[self.prev[0]], x_coords[self.prev[1]]
         y2, x2 = y_coords[y], x_coords[x] 
 
-        print(f"{x1}{y1}{x2}{y2}")
+        return f"{x1}{y1}{x2}{y2}"
 
     def cancel_move(self, y, x):
         self.update_button(self.prev[0], self.prev[1], bg=self.prev[2])
@@ -89,28 +94,36 @@ class Chess:
     def castling(self, y, x, check=False, p=None):
         ck = True
         cq = True
+        
+        if x == 6:x = 7
+        elif x == 2: x = 0
+
+
         if check and p != None:
             if p[0]: cq = False
             if p[1]: ck = False
             
-                
+            tx = 4
+
             for i in range(1, 4):
                 if i > 2:
-                    if self.grid[y][x-i] != 0: cq = False
+                    if self.grid[y][tx-i] != 0: cq = False
                 else: 
-                    if self.grid[y][x+i] != 0: ck = False
-                    if self.grid[y][x-i] != 0: cq = False
+                    if self.grid[y][tx+i] != 0: ck = False
+                    if self.grid[y][tx-i] != 0: cq = False
 
             if cq:
-                self.update_button(y, x-2, bg='orange')
-                self.track.add((y, x-2))
+                self.update_button(y, tx-2, bg='orange')
+                self.track.add((y, tx-2))
             if ck:
-                self.update_button(y, x+2, bg='orange')
-                self.track.add((y, x+2))
+                self.update_button(y,tx+2, bg='orange')
+                self.track.add((y, tx+2))
 
 
         elif (self.prev[0] == 7 and self.prev[1] == 4 and not self.wk) or (self.prev[0] == 0 and self.prev[1] == 4 and not self.bk):
             py, px = self.prev[0], self.prev[1]
+            if x == 2: x= 0
+            else: x = 7
             prev = self.grid[py][px]
             curr = self.grid[y][x]
             if (((y, x) == (0, 0) and not self.br1) 
@@ -118,7 +131,6 @@ class Chess:
                 or ((y, x) == (7, 0) and not self.wr1) 
                 or ((y, x) == (7, 7) and not self.wr2)):
                                         
-
                     self.grid[y][x] = 0                        
                     self.update_button(y, x, image=self.pieces[self.grid[y][x]])
                     self.grid[py][px] = 0
@@ -176,15 +188,27 @@ class Chess:
         col = "gray" if (y + x) % 2 else "white"
 
         if self.select != None: # Selects a square with something previously selected
-            self.get_coords(y, x)
 
-            if (self.select == self.wROOK or self.select == self.bROOK) and (y, x) in self.track:
-                self.rook(p=self.select, y=self.prev[0], x=self.prev[1], turn=True)
-            if (self.select == self.wKING and self.grid[y][x] == self.wROOK) or (self.select == self.bKING and self.grid[y][x] == self.bROOK):
-                self.castling(y, x)
-
-            elif (y, x) in self.track:
-                if (self.select == self.wPAWN and y == 0) or (self.select == self.bPAWN and y == 7):
+            if (y, x) in self.track:
+                try:
+                    stockfish.make_moves_from_current_position([self.get_coords(y, x)])
+                    ev = stockfish.get_evaluation(searchtime=50)
+                    ev_type = ev['type']
+                    cp = ev['value']
+                    if ev_type == 'mate' and cp == 0: self.end()
+                    if self.turn: cp = cp/100
+                    else: cp = -cp/100
+                    print(cp)
+                except ValueError:
+                    self.end()
+                if (self.select == self.wROOK or self.select == self.bROOK):
+                    self.rook(p=self.select, y=self.prev[0], x=self.prev[1], turn=True)
+                
+                elif ((self.select == self.wKING and self.wk == False) or (self.select == self.bKING and self.bk == False)) and self.grid[y][x] == 0 and (x == 2 or x == 6):
+                    self.castling(y, x)
+                    return None
+                
+                elif (self.select == self.wPAWN and y == 0) or (self.select == self.bPAWN and y == 7):
                     self.promotion(y, x, self.select)
                 
                 elif self.grid[y][x] == self.wKING or self.grid[y][x] == self.bKING:
