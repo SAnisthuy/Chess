@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 from stockfish import Stockfish
 
 stockfish = Stockfish(r"C:\Users\sansi\Downloads\stockfish\stockfish-windows-x86-64-avx2.exe")
@@ -53,7 +54,6 @@ class Chess:
     def get_coords(self, y, x):
         x_coords = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         y_coords = [8, 7, 6, 5, 4, 3, 2, 1]
-        
         y1, x1 = y_coords[self.prev[0]], x_coords[self.prev[1]]
         y2, x2 = y_coords[y], x_coords[x] 
 
@@ -70,7 +70,7 @@ class Chess:
             self.turn = True
 
     def promotion(self, y, x, p):
-        self.promote = Toplevel(self.main)
+        self.promote = Toplevel(self.root)
         self.promote.geometry('125x275+1250+276')
 
         b, k, r, q = 2, 3, 4, 5
@@ -163,9 +163,24 @@ class Chess:
         self.update_button(y, x, image=self.pieces[val])
         self.promote.destroy()
 
+    def evalutation(self, y, x):
+        try:
+            stockfish.make_moves_from_current_position([self.get_coords(y, x)])
+            ev = stockfish.get_evaluation(searchtime=50)
+            ev_type = ev['type']
+            cp = ev['value']
+            if ev_type == 'mate' and cp == 0: self.end()
+            if self.turn: cp = cp/100
+            else: cp = -cp/100
+            if cp > 11: cp == 11
+            self.centipawn.set(cp+5)
+            
+        except ValueError:
+            self.end()
+
     def end(self):
-        self.main.quit()
-        self.main.destroy()
+        self.root.quit()
+        self.root.destroy()
         win = Tk()
         self.center_window(250, 250, win)
         win.config(bg='green')
@@ -186,23 +201,14 @@ class Chess:
             
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
-
         if self.select != None: # Selects a square with something previously selected
 
             if (y, x) in self.track:
-                try:
-                    stockfish.make_moves_from_current_position([self.get_coords(y, x)])
-                    ev = stockfish.get_evaluation(searchtime=50)
-                    ev_type = ev['type']
-                    cp = ev['value']
-                    if ev_type == 'mate' and cp == 0: self.end()
-                    if self.turn: cp = cp/100
-                    else: cp = -cp/100
-                    print(cp)
-                except ValueError:
-                    self.end()
+                self.evalutation(y, x)
                 if (self.select == self.wROOK or self.select == self.bROOK):
                     self.rook(p=self.select, y=self.prev[0], x=self.prev[1], turn=True)
+                    self.grid[y][x] = self.select 
+                    self.update_button(y, x, image=self.pieces[self.grid[y][x]]) 
                 
                 elif ((self.select == self.wKING and self.wk == False) or (self.select == self.bKING and self.bk == False)) and self.grid[y][x] == 0 and (x == 2 or x == 6):
                     self.castling(y, x)
@@ -545,11 +551,39 @@ class Chess:
             self.track = set()
 
     def run(self):
-    
-        self.main = Tk()
+        
+        self.root = Tk()
 
-        self.main.title("Chess")
-        self.center_window(528, 528, self.main)
+        self.evalbar = Frame(self.root, bg='black')
+        self.evalbar.pack(side=LEFT)
+
+        self.main = Frame(self.root)
+        self.main.pack(side=RIGHT)
+
+        self.root.title("Chess")
+        self.center_window(550, 528, self.root)
+
+
+        style = ttk.Style()
+
+        style.theme_use('clam') 
+
+        style.configure("ccustom.evaluationbar.Vertical.TProgressbar", 
+                background='white',      # Color of the moving bar
+                troughcolor='darkgray',  # Color of the background area
+                bordercolor='gray',      # Border around the bar
+                lightcolor='white',      # Removes 3D highlight/shading
+                darkcolor='white')       # Removes 3D highlight/shading
+     
+
+
+        self.centipawn = IntVar()
+        self.eval_bar = ttk.Progressbar(self.evalbar, orient=VERTICAL, length=528, variable=self.centipawn, maximum=10, style='custom.evaluationbar.Vertical.TProgressbar')
+
+
+
+
+        self.eval_bar.pack()
 
         self.set_up()
         for i in range(8):
