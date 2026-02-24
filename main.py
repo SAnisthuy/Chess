@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 from stockfish import Stockfish
+import sys
 
-stockfish = Stockfish(r"C:\Users\sansi\Downloads\stockfish\stockfish-windows-x86-64-avx2.exe")
+stockfish = Stockfish() # to be replaced
 
 
 
