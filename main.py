@@ -1,11 +1,71 @@
 from tkinter import *
+from tkinter import filedialog as fd
 from tkinter import ttk
+from tkinter import messagebox as msg
 from stockfish import Stockfish
-import sys
 
-stockfish = Stockfish() # to be replaced
+class FindFile:
+
+    def __init__(self):
+        self.root = Tk()
+        self.path = StringVar()
+    
+    def select_file(self):
+        """Open a file dialog and return the selected file path."""
+        filetypes = (
+            ('Executables', '*.exe'),
+            ('All files', '*.*')
+        )
+
+        filename = fd.askopenfilename(
+            title='Open a file',
+            initialdir='/', 
+            filetypes=filetypes
+        )
+        
+        if filename:
+            self.file_path_entry.delete(0, END) 
+            self.file_path_entry.insert(0, filename)
+
+    def submit_button(self):
+        if "avx2.exe" not in str(self.path.get()):
+            self.file_path_entry.delete(0, END) 
+            self.path = StringVar()
+            msg.showerror("Wrong File Error", "The file selected is not the stockfish engine. \n Please try a different file")
+        else:
+            self.root.quit()
+            self.root.destroy()
+        
 
 
+    def run(self):
+        
+        self.root.title('File Finder GUI')
+        self.root.geometry('458x100')
+
+        frame = ttk.Frame(self.root, padding="10")
+        frame.grid(row=0, column=0, sticky=(W, E, N, S))
+
+        frame_button = ttk.Frame(self.root, padding="10")
+        frame_button.grid(row=1, column=0, sticky=(W, E, N, S))
+
+        ttk.Label(frame, text="Selected File Path:").grid(row=0, column=0, sticky=W, pady=5)
+        submit = Button(frame_button, text="Submit", command=self.submit_button)
+        submit.pack()
+
+
+
+        self.file_path_entry = ttk.Entry(frame, width=40, textvariable=self.path)
+        self.file_path_entry.grid(row=0, column=1, sticky=(W, E), pady=5, padx=5)
+
+        select_button = ttk.Button(frame, text='Browse', command=self.select_file)
+        select_button.grid(row=0, column=2, sticky=W, pady=5, padx=5)
+
+        if self.path.get().endswith(".exe"):
+            return self.path.get()
+        self.root.mainloop()
+
+        return self.path.get()        
 
 class Chess:
     def __init__(self):
@@ -32,7 +92,7 @@ class Chess:
             btn = widgets[0]
             btn.config(**kwargs)
 
-    def test_movement(self, y, x, p):
+    def movement(self, y, x, p):
         c = self.checking
         if p < 10:
             if self.grid[y][x] == 0 or self.grid[y][x] > 10:
@@ -95,7 +155,6 @@ class Chess:
     def castling(self, y, x, check=False, p=None):
         ck = True
         cq = True
-        
         if x == 6:x = 7
         elif x == 2: x = 0
 
@@ -120,11 +179,8 @@ class Chess:
                 self.update_button(y,tx+2, bg='orange')
                 self.track.add((y, tx+2))
 
-
         elif (self.prev[0] == 7 and self.prev[1] == 4 and not self.wk) or (self.prev[0] == 0 and self.prev[1] == 4 and not self.bk):
             py, px = self.prev[0], self.prev[1]
-            if x == 2: x= 0
-            else: x = 7
             prev = self.grid[py][px]
             curr = self.grid[y][x]
             if (((y, x) == (0, 0) and not self.br1) 
@@ -144,7 +200,7 @@ class Chess:
                         self.update_button(py, px+2, image=self.pieces[self.grid[py][px+2]])
                    
                     else:
-                        self.grid[y][x+2] = curr
+                        self.grid[y][x+3] = curr
                         self.update_button(y, x+3, image=self.pieces[self.grid[y][x+3]])
                         self.grid[py][px-2] = prev
                         self.update_button(py, px-2, image=self.pieces[self.grid[py][px-2]])
@@ -260,51 +316,51 @@ class Chess:
             if p == self.wPAWN:
                 if self.grid[y-1][x] == 0:
                     if y == 6 and self.grid[y-2][x] == 0:
-                        self.test_movement(y-2, x, p)
-                    self.test_movement(y-1, x, p)
+                        self.movement(y-2, x, p)
+                    self.movement(y-1, x, p)
                 if x > 0 and self.grid[y-1][x-1] > 10:
-                    self.test_movement(y-1, x-1, p)
+                    self.movement(y-1, x-1, p)
                 
                 if x < 7 and self.grid[y-1][x+1] > 10:
-                    self.test_movement(y-1, x+1, p)
+                    self.movement(y-1, x+1, p)
                 
             else:
                 if self.grid[y+1][x] == 0:
                     if y == 1 and self.grid[y+2][x] == 0:
-                        self.test_movement(y+2, x, p)
-                    self.test_movement(y+1, x, p)
+                        self.movement(y+2, x, p)
+                    self.movement(y+1, x, p)
                 if x > 0 and 0 < self.grid[y+1][x-1] < 10:
-                    self.test_movement(y+1, x-1, p)
+                    self.movement(y+1, x-1, p)
                 
                 if x < 7 and 0 < self.grid[y+1][x+1] < 10:
-                    self.test_movement(y+1, x+1, p)
+                    self.movement(y+1, x+1, p)
 
     def knight(self, p, y, x):
         # up
         if y >= 2:
             if x != 0:
-                self.test_movement(y-2, x-1, p)
+                self.movement(y-2, x-1, p)
             if x != 7:
-                self.test_movement(y-2, x+1, p)
+                self.movement(y-2, x+1, p)
         # down
         if y <= 5:
             if x != 0:
-                self.test_movement(y+2, x-1, p)
+                self.movement(y+2, x-1, p)
             if x != 7:
-                self.test_movement(y+2, x+1, p)
+                self.movement(y+2, x+1, p)
         # right
         if x <= 5:
             if y != 0:
-                self.test_movement(y-1, x+2, p)
+                self.movement(y-1, x+2, p)
             if y != 7:
-                self.test_movement(y+1, x+2, p)
+                self.movement(y+1, x+2, p)
         
         # left
         if x >= 2:
             if y != 0:
-                self.test_movement(y-1, x-2, p)
+                self.movement(y-1, x-2, p)
             if y != 7:
-                self.test_movement(y+1, x-2, p)
+                self.movement(y+1, x-2, p)
 
     def bishop(self, p, y, x):
         # down and right
@@ -314,7 +370,7 @@ class Chess:
             l = abs(x-8)
         for i in range(1, l):
             curr = self.grid[y+i][x+i]
-            self.test_movement(y+i, x+i, p)
+            self.movement(y+i, x+i, p)
             if curr != 0:
                 break
     
@@ -325,7 +381,7 @@ class Chess:
             l = abs(x-(-1))
         for i in range(1, l):
             curr = self.grid[y+i][x-i]
-            self.test_movement(y+i, x-i, p)
+            self.movement(y+i, x-i, p)
             if curr != 0:
                 break
 
@@ -336,7 +392,7 @@ class Chess:
             l = abs(x-8)
         for i in range(1, l):
             curr = self.grid[y-i][x+i]
-            self.test_movement(y-i, x+i, p)
+            self.movement(y-i, x+i, p)
             if curr != 0:
                 break
 
@@ -347,7 +403,7 @@ class Chess:
             l = abs(x-(-1))
         for i in range(1, l):
             curr = self.grid[y-i][x-i]
-            self.test_movement(y-i, x-i, p)
+            self.movement(y-i, x-i, p)
             if curr != 0:
                 break
             
@@ -372,60 +428,62 @@ class Chess:
         # vertical up
         for i in range(y-1, -1, -1):
             curr = self.grid[i][x]
-            self.test_movement(i, x, p)
+            self.movement(i, x, p)
             if curr != 0:
                 break
 
         # vertical down
         for i in range(y+1, 8):
             curr = self.grid[i][x]
-            self.test_movement(i, x, p)
+            self.movement(i, x, p)
             if curr != 0:
                 break
 
         # horizontal right
         for i in range(x+1, 8):
             curr = self.grid[y][i]
-            self.test_movement(y, i, p)
+            self.movement(y, i, p)
             if curr != 0:
                 break
         
         # horizontal left
         for i in range(x-1, -1, -1):
             curr = self.grid[y][i]
-            self.test_movement(y, i, p)
+            self.movement(y, i, p)
             if curr != 0:
                 break
 
     def king(self, p, y, x):
             
             if p < 10: 
-                if not self.wk: self.castling(y, x, check=True, p=[self.wr1, self.wr2])
+                if not self.wk: 
+                    self.castling(y, x, check=True, p=[self.wr1, self.wr2])
+                
             else: 
                 if not self.bk: self.castling(y, x, check=True, p=[self.br1, self.br2])
             #up 
             if y != 0:
-                self.test_movement(y-1, x, p)
+                self.movement(y-1, x, p)
             # down
             if y != 7:
-                self.test_movement(y+1, x, p)
+                self.movement(y+1, x, p)
             #left 
             if x != 0:
-                self.test_movement(y, x-1, p)
+                self.movement(y, x-1, p)
             if x != 7:
-                self.test_movement(y, x+1, p)
+                self.movement(y, x+1, p)
             # up and right
             if y != 0 and x != 7:
-                self.test_movement(y-1, x+1, p)
+                self.movement(y-1, x+1, p)
             # up and left
             if y != 0 and x != 0:
-                self.test_movement(y-1, x-1, p)
+                self.movement(y-1, x-1, p)
             # down and right
             if y!= 7 and x != 7:
-                self.test_movement(y+1, x+1, p)
+                self.movement(y+1, x+1, p)
             # down and left
             if y != 7 and x != 0:
-                self.test_movement(y+1, x-1, p)
+                self.movement(y+1, x-1, p)
 
     def set_up(self):
         
@@ -595,6 +653,11 @@ class Chess:
                 btn.grid(row=i, column=j, sticky="nsew")
 
         mainloop()
+
+
+
+finder = FindFile()
+stockfish = Stockfish(finder.run()) # to be replaced
 
 run = Chess()
 run.run()
