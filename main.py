@@ -74,9 +74,6 @@ class Chess:
         self.prev = None
         self.turn = True
         self.track = set()
-        self.check_track = False
-        self.checking = False
-
         #castling
         self.wr1 = False
         self.wr2 = False
@@ -93,24 +90,14 @@ class Chess:
             btn.config(**kwargs)
 
     def movement(self, y, x, p):
-        c = self.checking
         if p < 10:
             if self.grid[y][x] == 0 or self.grid[y][x] > 10:
-                if c and self.grid[y][x] == 16:
-                    self.check_track = True
-                    self.update_button(y, x, bg='red')
-                if not c:
-                    self.update_button(y, x, bg='orange')
-                    self.track.add((y, x))
+                self.update_button(y, x, bg='orange')
+                self.track.add((y, x))
         else:
             if self.grid[y][x] == 0 or self.grid[y][x] < 10:
-                if c and self.grid[y][x] == 6:
-                    self.check_track = True
-                    self.update_button(y, x, bg='red')
-
-                if not c:
-                    self.update_button(y, x, bg='orange')
-                    self.track.add((y, x))
+                self.update_button(y, x, bg='orange')
+                self.track.add((y, x))
 
     def get_coords(self, y, x):
         x_coords = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -288,10 +275,7 @@ class Chess:
                 self.interact(y, x, reverse=True)
                 # clear variables
                 self.prev, self.select = None, None
-                self.checking = True
-                self.interact(y, x)
-                self.checking = False
-
+        
             else:
                 self.cancel_move(y, x)
 
@@ -302,7 +286,6 @@ class Chess:
                 self.update_button(y, x, bg="light green")
                 self.prev = (y, x, col)
                 self.interact(y, x)
-                self.check_track = False
                 if self.turn:
                     self.turn = False
                 else:
@@ -409,20 +392,20 @@ class Chess:
             
     def rook(self, p, y, x, turn=False):
         
-        if not self.checking:
-            if turn:
-                if (y == 0 and x == 0) and self.br1 == False:
-                    self.br1 = True
-                
-                elif (y == 0 and x == 7) and self.br2 == False:
-                    self.br2 = True
 
-                elif (y == 7 and x == 0) and self.wr1 == False:
-                    self.wr1 = True
+        if turn:
+            if (y == 0 and x == 0) and self.br1 == False:
+                self.br1 = True
+            
+            elif (y == 0 and x == 7) and self.br2 == False:
+                self.br2 = True
 
-                elif (y == 7 and x == 7) and self.wr2 == False:
-                    self.wr2 = True
-                return None
+            elif (y == 7 and x == 0) and self.wr1 == False:
+                self.wr1 = True
+
+            elif (y == 7 and x == 7) and self.wr2 == False:
+                self.wr2 = True
+            return None
 
 
         # vertical up
