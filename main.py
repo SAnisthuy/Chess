@@ -35,8 +35,6 @@ class FindFile:
         else:
             self.root.quit()
             self.root.destroy()
-        
-
 
     def run(self):
         
@@ -82,6 +80,11 @@ class Chess:
         self.br1 = False
         self.br2 = False
         self.bk = False
+        #checking for checks
+        self.Wking_pos = (7, 4)
+        self.Bking_pos = (0, 4)
+        self.check_check = False # controls whether functions are searching for checks
+        self.check_val = False # Checks whether a king is currently in check 
 
     def update_button(self, row, col, **kwargs):
         widgets = self.main.grid_slaves(row=row, column=col) 
@@ -89,7 +92,12 @@ class Chess:
             btn = widgets[0]
             btn.config(**kwargs)
 
-    def movement(self, y, x, p):
+    def highlight(self, y, x, p):
+        if self.check_check:
+            if self.grid[y][x] == p or (p < 10 and self.grid[y][x] == self.wQUEEN) or (p > 10 and self.grid[y][x] == self.bQUEEN): 
+                self.check_val = True
+                return None
+            return None
         if p < 10:
             if self.grid[y][x] == 0 or self.grid[y][x] > 10:
                 self.update_button(y, x, bg='orange')
@@ -266,6 +274,8 @@ class Chess:
                     return None
                 else:
                     # update new square
+                    if self.select == self.wKING: self.Wking_pos = (y, x)
+                    elif self.select == self.bKING: self.Bking_pos = (y, x)
                     self.grid[y][x] = self.select 
                     self.update_button(y, x, image=self.pieces[self.grid[y][x]]) 
                 # update previous square
@@ -275,6 +285,7 @@ class Chess:
                 self.interact(y, x, reverse=True)
                 # clear variables
                 self.prev, self.select = None, None
+                self.check()
         
             else:
                 self.cancel_move(y, x)
@@ -299,51 +310,51 @@ class Chess:
             if p == self.wPAWN:
                 if self.grid[y-1][x] == 0:
                     if y == 6 and self.grid[y-2][x] == 0:
-                        self.movement(y-2, x, p)
-                    self.movement(y-1, x, p)
+                        self.highlight(y-2, x, p)
+                    self.highlight(y-1, x, p)
                 if x > 0 and self.grid[y-1][x-1] > 10:
-                    self.movement(y-1, x-1, p)
+                    self.highlight(y-1, x-1, p)
                 
                 if x < 7 and self.grid[y-1][x+1] > 10:
-                    self.movement(y-1, x+1, p)
+                    self.highlight(y-1, x+1, p)
                 
             else:
                 if self.grid[y+1][x] == 0:
                     if y == 1 and self.grid[y+2][x] == 0:
-                        self.movement(y+2, x, p)
-                    self.movement(y+1, x, p)
+                        self.highlight(y+2, x, p)
+                    self.highlight(y+1, x, p)
                 if x > 0 and 0 < self.grid[y+1][x-1] < 10:
-                    self.movement(y+1, x-1, p)
+                    self.highlight(y+1, x-1, p)
                 
                 if x < 7 and 0 < self.grid[y+1][x+1] < 10:
-                    self.movement(y+1, x+1, p)
+                    self.highlight(y+1, x+1, p)
 
     def knight(self, p, y, x):
         # up
         if y >= 2:
             if x != 0:
-                self.movement(y-2, x-1, p)
+                self.highlight(y-2, x-1, p)
             if x != 7:
-                self.movement(y-2, x+1, p)
+                self.highlight(y-2, x+1, p)
         # down
         if y <= 5:
             if x != 0:
-                self.movement(y+2, x-1, p)
+                self.highlight(y+2, x-1, p)
             if x != 7:
-                self.movement(y+2, x+1, p)
+                self.highlight(y+2, x+1, p)
         # right
         if x <= 5:
             if y != 0:
-                self.movement(y-1, x+2, p)
+                self.highlight(y-1, x+2, p)
             if y != 7:
-                self.movement(y+1, x+2, p)
+                self.highlight(y+1, x+2, p)
         
         # left
         if x >= 2:
             if y != 0:
-                self.movement(y-1, x-2, p)
+                self.highlight(y-1, x-2, p)
             if y != 7:
-                self.movement(y+1, x-2, p)
+                self.highlight(y+1, x-2, p)
 
     def bishop(self, p, y, x):
         # down and right
@@ -353,7 +364,7 @@ class Chess:
             l = abs(x-8)
         for i in range(1, l):
             curr = self.grid[y+i][x+i]
-            self.movement(y+i, x+i, p)
+            self.highlight(y+i, x+i, p)
             if curr != 0:
                 break
     
@@ -364,7 +375,7 @@ class Chess:
             l = abs(x-(-1))
         for i in range(1, l):
             curr = self.grid[y+i][x-i]
-            self.movement(y+i, x-i, p)
+            self.highlight(y+i, x-i, p)
             if curr != 0:
                 break
 
@@ -375,7 +386,7 @@ class Chess:
             l = abs(x-8)
         for i in range(1, l):
             curr = self.grid[y-i][x+i]
-            self.movement(y-i, x+i, p)
+            self.highlight(y-i, x+i, p)
             if curr != 0:
                 break
 
@@ -386,7 +397,7 @@ class Chess:
             l = abs(x-(-1))
         for i in range(1, l):
             curr = self.grid[y-i][x-i]
-            self.movement(y-i, x-i, p)
+            self.highlight(y-i, x-i, p)
             if curr != 0:
                 break
             
@@ -411,62 +422,91 @@ class Chess:
         # vertical up
         for i in range(y-1, -1, -1):
             curr = self.grid[i][x]
-            self.movement(i, x, p)
+            self.highlight(i, x, p)
             if curr != 0:
                 break
 
         # vertical down
         for i in range(y+1, 8):
             curr = self.grid[i][x]
-            self.movement(i, x, p)
+            self.highlight(i, x, p)
             if curr != 0:
                 break
 
         # horizontal right
         for i in range(x+1, 8):
             curr = self.grid[y][i]
-            self.movement(y, i, p)
+            self.highlight(y, i, p)
             if curr != 0:
                 break
         
         # horizontal left
         for i in range(x-1, -1, -1):
             curr = self.grid[y][i]
-            self.movement(y, i, p)
+            self.highlight(y, i, p)
             if curr != 0:
                 break
+
+    def check(self):
+        self.check_check = True
+        wy, wx = self.Wking_pos
+        by, bx = self.Bking_pos
+        if not self.turn: 
+            y, x = by, bx
+            self.rook(self.wROOK, by, bx)
+            self.knight(self.wKNIGHT, by, bx)
+            self.bishop(self.wBISHOP, by, bx)
+            self.bishop(self.wBISHOP, by, bx)
+        else:
+            y, x = wy, wx
+            self.rook(self.bROOK, wy, wx)
+            self.knight(self.bKNIGHT, wy, wx)
+            self.bishop(self.bBISHOP, wy, wx)
+            self.bishop(self.bBISHOP, wy, wx)
+
+        if self.check_val: 
+            self.update_button(y, x, bg='red')
+        else:
+            if not self.turn: 
+                col = "gray" if (wy+wx) % 2 else "white"
+                self.update_button(wy, wx, bg=col)
+            else: 
+                col = "gray" if (by+bx) % 2 else "white"
+                self.update_button(by, bx, bg=col)
+        self.check_check = False
+        self.check_val = False
 
     def king(self, p, y, x):
             
             if p < 10: 
                 if not self.wk: 
                     self.castling(y, x, check=True, p=[self.wr1, self.wr2])
-                
+        
             else: 
                 if not self.bk: self.castling(y, x, check=True, p=[self.br1, self.br2])
             #up 
             if y != 0:
-                self.movement(y-1, x, p)
+                self.highlight(y-1, x, p)
             # down
             if y != 7:
-                self.movement(y+1, x, p)
+                self.highlight(y+1, x, p)
             #left 
             if x != 0:
-                self.movement(y, x-1, p)
+                self.highlight(y, x-1, p)
             if x != 7:
-                self.movement(y, x+1, p)
+                self.highlight(y, x+1, p)
             # up and right
             if y != 0 and x != 7:
-                self.movement(y-1, x+1, p)
+                self.highlight(y-1, x+1, p)
             # up and left
             if y != 0 and x != 0:
-                self.movement(y-1, x-1, p)
+                self.highlight(y-1, x-1, p)
             # down and right
             if y!= 7 and x != 7:
-                self.movement(y+1, x+1, p)
+                self.highlight(y+1, x+1, p)
             # down and left
             if y != 7 and x != 0:
-                self.movement(y+1, x-1, p)
+                self.highlight(y+1, x-1, p)
 
     def set_up(self):
         
@@ -639,8 +679,10 @@ class Chess:
 
 
 
-finder = FindFile()
-stockfish = Stockfish(finder.run()) # to be replaced
+# finder = FindFile()
+# stockfish = Stockfish(finder.run()) 
+
+stockfish = Stockfish(r"C:\Users\sansi\Downloads\stockfish\stockfish-windows-x86-64-avx2.exe")
 
 run = Chess()
 run.run()
