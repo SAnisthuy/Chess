@@ -112,48 +112,52 @@ class Chess:
                 else: 
                     if self.grid[y][tx+i] != 0: ck = False
                     if self.grid[y][tx-i] != 0: cq = False
+            if cq or ck:
+                if cq:
+                    self.update_button(y, tx-2, bg='orange')
+                    self.track.add((y, tx-2))
+                if ck:
+                    self.update_button(y,tx+2, bg='orange')
+                    self.track.add((y, tx+2))
+                return True
+            else: return False
 
-            if cq:
-                self.update_button(y, tx-2, bg='orange')
-                self.track.add((y, tx-2))
-            if ck:
-                self.update_button(y,tx+2, bg='orange')
-                self.track.add((y, tx+2))
 
         elif (self.prev[0] == 7 and self.prev[1] == 4 and not self.wk) or (self.prev[0] == 0 and self.prev[1] == 4 and not self.bk):
-            py, px = self.prev[0], self.prev[1]
-            prev = self.grid[py][px]
-            curr = self.grid[y][x]
-            if (((y, x) == (0, 0) and not self.br1) 
-                or ((y, x) == (0, 7) and not self.br2) 
-                or ((y, x) == (7, 0) and not self.wr1) 
-                or ((y, x) == (7, 7) and not self.wr2)):
-                                        
-                    self.grid[y][x] = 0                        
-                    self.update_button(y, x, image=self.pieces[self.grid[y][x]])
-                    self.grid[py][px] = 0
-                    self.update_button(py, px, image=self.pieces[self.grid[y][x]])
+            if ((self.select == self.wKING and self.wk == False) or (self.select == self.bKING and self.bk == False)) and (self.grid[y][x] == 0 and (x == 2 or x == 6) and (y==0 or y==7)):
+                py, px = self.prev[0], self.prev[1]
+                prev = self.grid[py][px]
+                curr = self.grid[y][x]
+                if (((y, x) == (0, 0) and not self.br1) 
+                    or ((y, x) == (0, 7) and not self.br2) 
+                    or ((y, x) == (7, 0) and not self.wr1) 
+                    or ((y, x) == (7, 7) and not self.wr2)):
+                                            
+                        self.grid[y][x] = 0                        
+                        self.update_button(y, x, image=self.pieces[self.grid[y][x]])
+                        self.grid[py][px] = 0
+                        self.update_button(py, px, image=self.pieces[self.grid[y][x]])
 
-                    if px < x:
-                        self.grid[y][x-2] = curr
-                        self.update_button(y, x-2, image=self.pieces[self.grid[y][x-2]])
-                        self.grid[py][px+2] = prev
-                        self.update_button(py, px+2, image=self.pieces[self.grid[py][px+2]])
-                   
-                    else:
-                        self.grid[y][x+3] = curr
-                        self.update_button(y, x+3, image=self.pieces[self.grid[y][x+3]])
-                        self.grid[py][px-2] = prev
-                        self.update_button(py, px-2, image=self.pieces[self.grid[py][px-2]])
-                        
+                        if px < x:
+                            self.grid[y][x-2] = curr
+                            self.update_button(y, x-2, image=self.pieces[self.grid[y][x-2]])
+                            self.grid[py][px+2] = prev
+                            self.update_button(py, px+2, image=self.pieces[self.grid[py][px+2]])
                     
-                    self.interact(y, x, reverse=True)
-                    self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2]) 
+                        else:
+                            self.grid[y][x+3] = curr
+                            self.update_button(y, x+3, image=self.pieces[self.grid[y][x+3]])
+                            self.grid[py][px-2] = prev
+                            self.update_button(py, px-2, image=self.pieces[self.grid[py][px-2]])
+                            
+                        
+                        self.interact(y, x, reverse=True)
+                        self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2]) 
 
-                    self.select, self.prev = None, None
-                    if prev == self.wKING: self.wk = True
-                    else: self.bk = True
-
+                        self.select, self.prev = None, None
+                        if prev == self.wKING: self.wk = True
+                        else: self.bk = True
+                        return True
         return False
 
     def promotion2(self, y, x, val):
@@ -207,15 +211,9 @@ class Chess:
                     self.grid[y][x] = self.select 
                     self.update_button(y, x, image=self.pieces[self.grid[y][x]]) 
                 
-                elif ((self.select == self.wKING and self.wk == False) or (self.select == self.bKING and self.bk == False)):
-                    if self.grid[y][x] == 0 and (x == 2 or x == 6) and (y==0 or y==7):
-                        self.castling(y, x)
-                    else:
-                        if self.select == self.wKING: self.wk = True
-                        else: self.bk = True
+                elif self.castling(y, x):
                     return None
 
-                
                 elif (self.select == self.wPAWN and y == 0) or (self.select == self.bPAWN and y == 7):
                     self.promotion(y, x, self.select)
                 
@@ -356,7 +354,6 @@ class Chess:
             
     def rook(self, p, y, x, turn=False):
         
-
         if turn:
             if (y == 0 and x == 0) and self.br1 == False:
                 self.br1 = True
