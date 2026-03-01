@@ -100,39 +100,38 @@ class Chess:
         if x == 6:x = 7
         elif x == 2: x = 0
 
-        if check and p != None:
-            if p[0]: cq = False
-            if p[1]: ck = False
-            
-            tx = 4
-
-            for i in range(1, 4):
-                if i > 2:
-                    if self.grid[y][tx-i] != 0: cq = False
-                else: 
-                    if self.grid[y][tx+i] != 0: ck = False
-                    if self.grid[y][tx-i] != 0: cq = False
-            if cq or ck:
-                if cq:
-                    self.update_button(y, tx-2, bg='orange')
-                    self.track.add((y, tx-2))
-                if ck:
-                    self.update_button(y,tx+2, bg='orange')
-                    self.track.add((y, tx+2))
-                return True
-            else: return False
-
-
         elif (self.prev[0] == 7 and self.prev[1] == 4 and not self.wk) or (self.prev[0] == 0 and self.prev[1] == 4 and not self.bk):
             if ((self.select == self.wKING and self.wk == False) or (self.select == self.bKING and self.bk == False)) and (self.grid[y][x] == 0 and (x == 2 or x == 6) and (y==0 or y==7)):
-                py, px = self.prev[0], self.prev[1]
-                prev = self.grid[py][px]
-                curr = self.grid[y][x]
                 if (((y, x) == (0, 0) and not self.br1) 
                     or ((y, x) == (0, 7) and not self.br2) 
                     or ((y, x) == (7, 0) and not self.wr1) 
                     or ((y, x) == (7, 7) and not self.wr2)):
-                                            
+                    if check and p != None:
+                        if p[0]: cq = False
+                        if p[1]: ck = False
+                        
+                        tx = 4
+
+                        for i in range(1, 4):
+                            if i > 2:
+                                if self.grid[y][tx-i] != 0: cq = False
+                            else: 
+                                if self.grid[y][tx+i] != 0: ck = False
+                                if self.grid[y][tx-i] != 0: cq = False
+                        if cq or ck:
+                            if cq:
+                                self.update_button(y, tx-2, bg='orange')
+                                self.track.add((y, tx-2))
+                            if ck:
+                                self.update_button(y,tx+2, bg='orange')
+                                self.track.add((y, tx+2))
+                            return True
+                        else: return False
+                    else:
+                        py, px = self.prev[0], self.prev[1]
+                        prev = self.grid[py][px]
+                        curr = self.grid[y][x]
+                                                    
                         self.grid[y][x] = 0                        
                         self.update_button(y, x, image=self.pieces[self.grid[y][x]])
                         self.grid[py][px] = 0
@@ -430,11 +429,10 @@ class Chess:
     def king(self, p, y, x):
             
             if p < 10: 
-                if not self.wk: 
-                    self.castling(y, x, check=True, p=[self.wr1, self.wr2])
-        
+                if not self.wk: self.castling(y, x, check=True, p=[self.wr1, self.wr2])
             else: 
                 if not self.bk: self.castling(y, x, check=True, p=[self.br1, self.br2])
+            
             #up 
             if y != 0:
                 self.highlight(y-1, x, p)
