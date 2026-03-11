@@ -95,17 +95,18 @@ class Chess:
         Knight.pack()
 
     def castling(self, y, x, check=False, p=None):
+
         ck = True
         cq = True
-        if x == 6:x = 7
-        elif x == 2: x = 0
-
-        elif (self.prev[0] == 7 and self.prev[1] == 4 and not self.wk) or (self.prev[0] == 0 and self.prev[1] == 4 and not self.bk):
-            if ((self.select == self.wKING and self.wk == False) or (self.select == self.bKING and self.bk == False)) and (self.grid[y][x] == 0 and (x == 2 or x == 6) and (y==0 or y==7)):
+        if ((self.prev[0], self.prev[1]) == (7, 4) and not self.wk) or ((self.prev[0], self.prev[1]) == (0, 4) and not self.bk): #check if king is in the right square and hasnt been moved before
+            if (self.grid[y][x] == 0 and (x == 2 or x == 6) and (y==0 or y==7)):
+                if x == 6:x = 7
+                if x == 2: x = 0
                 if (((y, x) == (0, 0) and not self.br1) 
                     or ((y, x) == (0, 7) and not self.br2) 
                     or ((y, x) == (7, 0) and not self.wr1) 
                     or ((y, x) == (7, 7) and not self.wr2)):
+                    print("here")
                     if check and p != None:
                         if p[0]: cq = False
                         if p[1]: ck = False
@@ -128,30 +129,25 @@ class Chess:
                             return True
                         else: return False
                     else:
+
+
                         py, px = self.prev[0], self.prev[1]
                         prev = self.grid[py][px]
                         curr = self.grid[y][x]
                                                     
                         self.grid[y][x] = 0                        
-                        self.update_button(y, x, image=self.pieces[self.grid[y][x]])
                         self.grid[py][px] = 0
-                        self.update_button(py, px, image=self.pieces[self.grid[y][x]])
 
                         if px < x:
                             self.grid[y][x-2] = curr
-                            self.update_button(y, x-2, image=self.pieces[self.grid[y][x-2]])
                             self.grid[py][px+2] = prev
-                            self.update_button(py, px+2, image=self.pieces[self.grid[py][px+2]])
                     
                         else:
                             self.grid[y][x+3] = curr
-                            self.update_button(y, x+3, image=self.pieces[self.grid[y][x+3]])
                             self.grid[py][px-2] = prev
-                            self.update_button(py, px-2, image=self.pieces[self.grid[py][px-2]])
                             
                         
                         self.interact(y, x, reverse=True)
-                        self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2]) 
 
                         self.select, self.prev = None, None
                         if prev == self.wKING: self.wk = True
@@ -161,7 +157,6 @@ class Chess:
 
     def promotion2(self, y, x, val):
         self.grid[y][x] = val 
-        self.update_button(y, x, image=self.pieces[val])
         self.promote.destroy()
 
     def evalutation(self, y, x):
@@ -199,20 +194,22 @@ class Chess:
         y = (screen_height // 2) - (height // 2)
         # Set the geometry
         root.geometry(f'{width}x{height}+{x}+{y}')
-            
+
+    def board(self):
+        for y, r in enumerate(self.grid):
+            for x, p in enumerate(r):
+                col = "gray" if (y + x) % 2 else "white"
+                self.update_button(y, x, image=self.pieces[p], bg=col)
+
     def on_click(self, y, x):
         col = "gray" if (y + x) % 2 else "white"
         if self.select != None: # Selects a square with something previously selected
-            if (y, x) in self.track:
-                self.evalutation(y, x)
+            if (y, x) in self.track: # Check if the current square is saved as a valid square
+                self.evalutation(y, x) #run eval
                 if (self.select == self.wROOK or self.select == self.bROOK):
-                    self.rook(p=self.select, y=self.prev[0], x=self.prev[1], turn=True)
-                    self.grid[y][x] = self.select 
-                    self.update_button(y, x, image=self.pieces[self.grid[y][x]]) 
+                    self.rook(p=self.select, y=self.prev[0], x=self.prev[1], turn=True) # Save that the rook has moved (to prevent future castling)
+                    self.grid[y][x] = self.select # Moves the selected piece (on the backend grid) 
                 
-                elif self.castling(y, x):
-                    return None
-
                 elif (self.select == self.wPAWN and y == 0) or (self.select == self.bPAWN and y == 7):
                     self.promotion(y, x, self.select)
                 
@@ -220,18 +217,19 @@ class Chess:
                     self.end()
                     return None
                 else:
+                    self.castling(y, x)
+
                     # update new square
                     if self.select == self.wKING: self.Wking_pos = (y, x)
                     elif self.select == self.bKING: self.Bking_pos = (y, x)
                     self.grid[y][x] = self.select 
-                    self.update_button(y, x, image=self.pieces[self.grid[y][x]]) 
                 # update previous square
-                self.update_button(self.prev[0], self.prev[1], image=self.pieces[0], bg=self.prev[2]) 
                 self.grid[self.prev[0]][self.prev[1]] = 0
                 # clear move highlights
                 self.interact(y, x, reverse=True)
                 # clear variables
                 self.prev, self.select = None, None
+                self.board()
                 self.check()
         
             else:
@@ -274,7 +272,6 @@ class Chess:
                     self.highlight(y+1, x, p)
                 if x > 0 and 0 < self.grid[y+1][x-1] < 10:
                     self.highlight(y+1, x-1, p)
-                    # print("here")
                 
                 if x < 7 and 0 < self.grid[y+1][x+1] < 10:
                     self.highlight(y+1, x+1, p)
@@ -583,18 +580,24 @@ class Chess:
 
     def run(self):
         
+        # Intitialize root window
         self.root = Tk()
 
+        #set up frame for eval bar and pack it
         self.evalbar = Frame(self.root, bg='black')
         self.evalbar.pack(side=LEFT)
 
+        #Main window for game
         self.main = Frame(self.root)
         self.main.pack(side=RIGHT)
 
+        #set title of the window
         self.root.title("Chess")
         self.center_window(550, 528, self.root)
 
+        # -- EVAL BAR CODE --
 
+        #set style up
         style = ttk.Style()
 
         style.theme_use('clam') 
@@ -607,21 +610,21 @@ class Chess:
                 darkcolor='white')       # Removes 3D highlight/shading
      
 
-
+        # Variable used to store the current eval
         self.centipawn = IntVar()
+        #bar itself
         self.eval_bar = ttk.Progressbar(self.evalbar, orient=VERTICAL, length=528, variable=self.centipawn, maximum=10, style='custom.evaluationbar.Vertical.TProgressbar')
-
-
-
-
         self.eval_bar.pack()
 
+        # run set up function
         self.set_up()
+
+        # set up grid
         for i in range(8):
             for j in range(8):
-                color = "gray" if (i + j) % 2 else "white"
-                btn = Button(self.main, image= self.pieces[self.grid[i][j]], command=lambda r=i, c=j: self.on_click(r, c))
-                btn.config(bg=color)
-                btn.grid(row=i, column=j, sticky="nsew")
+                color = "gray" if (i + j) % 2 else "white" # get the color of the square
+                btn = Button(self.main, image= self.pieces[self.grid[i][j]], command=lambda r=i, c=j: self.on_click(r, c)) #ensure button is interactable
+                btn.config(bg=color) #color
+                btn.grid(row=i, column=j, sticky="nsew") #add to grid
 
-        mainloop()
+        mainloop() #loop
