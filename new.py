@@ -541,22 +541,22 @@ class Chess:
         
 
         # Load pieces
-        self.main.darkRook   = PhotoImage(file=r"Elements\DarkRook.png").subsample(6, 6)
-        self.main.darkKnight = PhotoImage(file=r"Elements\DarkKnight.png").subsample(6, 6)
-        self.main.darkBishop = PhotoImage(file=r"Elements\DarkBishop.png").subsample(6, 6)
-        self.main.darkQueen  = PhotoImage(file=r"Elements\DarkQueen.png").subsample(6, 6)
-        self.main.darkKing   = PhotoImage(file=r"Elements\DarkKing.png").subsample(6, 6)
-        self.main.darkPawn   = PhotoImage(file=r"Elements\DarkPawn.png").subsample(6, 6)
+        self.main.darkRook   = PhotoImage(file=r"Chess\Chess\Elements\DarkRook.png").subsample(6, 6)
+        self.main.darkKnight = PhotoImage(file=r"Chess\Chess\Elements\DarkKnight.png").subsample(6, 6)
+        self.main.darkBishop = PhotoImage(file=r"Chess\Chess\Elements\DarkBishop.png").subsample(6, 6)
+        self.main.darkQueen  = PhotoImage(file=r"Chess\Chess\Elements\DarkQueen.png").subsample(6, 6)
+        self.main.darkKing   = PhotoImage(file=r"Chess\Chess\Elements\DarkKing.png").subsample(6, 6)
+        self.main.darkPawn   = PhotoImage(file=r"Chess\Chess\Elements\DarkPawn.png").subsample(6, 6)
 
-        self.main.whiteRook   = PhotoImage(file=r"Elements\LightRook.png").subsample(6, 6)
-        self.main.whiteBishop = PhotoImage(file=r"Elements\LightBishop.png").subsample(6, 6)
-        self.main.whiteKnight = PhotoImage(file=r"Elements\LightKnight.png").subsample(6, 6)
-        self.main.whiteQueen  = PhotoImage(file=r"Elements\LightQueen.png").subsample(6, 6)
-        self.main.whiteKing   = PhotoImage(file=r"Elements\LightKing.png").subsample(6, 6)
-        self.main.whitePawn   = PhotoImage(file=r"Elements\LightPawn.png").subsample(6, 6)
+        self.main.whiteRook   = PhotoImage(file=r"Chess\Chess\Elements\LightRook.png").subsample(6, 6)
+        self.main.whiteBishop = PhotoImage(file=r"Chess\Chess\Elements\LightBishop.png").subsample(6, 6)
+        self.main.whiteKnight = PhotoImage(file=r"Chess\Chess\Elements\LightKnight.png").subsample(6, 6)
+        self.main.whiteQueen  = PhotoImage(file=r"Chess\Chess\Elements\LightQueen.png").subsample(6, 6)
+        self.main.whiteKing   = PhotoImage(file=r"Chess\Chess\Elements\LightKing.png").subsample(6, 6)
+        self.main.whitePawn   = PhotoImage(file=r"Chess\Chess\Elements\LightPawn.png").subsample(6, 6)
 
-        self.main.blank = PhotoImage(file=r"Elements\Blank.png")
-        self.main.selected = PhotoImage(file=r"Elements\selected.png").subsample(6, 6)
+        self.main.blank = PhotoImage(file=r"Chess\Chess\Elements\Blank.png")
+        self.main.selected = PhotoImage(file=r"Chess\Chess\Elements\selected.png").subsample(6, 6)
 
 
         # map
@@ -697,7 +697,7 @@ class Chess:
 # finder = FindFile()
 # stockfish = Stockfish(finder.run()) 
 
-stockfish = Stockfish(r"C:\Users\sansi\Downloads\stockfish\stockfish-windows-x86-64-avx2.exe")
+stockfish = Stockfish(r"C:\Users\deepags\Downloads\stockfish-windows-x86-64-avx2\stockfish\stockfish-windows-x86-64-avx2.exe")
 
 run = Chess()
 run.run()
